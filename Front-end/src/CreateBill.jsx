@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { fetchSweets, createInvoice } from './api';
 // Bootstrap Trash SVG icon
 const TrashIcon = (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-trash" viewBox="0 0 16 16">
@@ -22,6 +23,9 @@ const CreateBill = ({ onBack, onGenerateInvoice }) => {
   ];
 
   const [employee, setEmployee] = useState('');
+  const [sweets, setSweets] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [customerName, setCustomerName] = useState('');
   const [mobileNo, setMobileNo] = useState('');
   const [orderNo, setOrderNo] = useState('');
@@ -46,6 +50,21 @@ const CreateBill = ({ onBack, onGenerateInvoice }) => {
   const [advanceAmount, setAdvanceAmount] = useState(0);
   const [discount, setDiscount] = useState(0); // discount as amount
 
+  // Fetch sweets on component mount
+  useEffect(() => {
+    setLoading(true);
+    fetchSweets()
+      .then(data => {
+        setSweets(data);
+        setError(null);
+      })
+      .catch(err => {
+        setError(err.message);
+        console.error('Failed to fetch sweets:', err);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
   // Calculate total and grand total
   const totalAmount = items.reduce((sum, item) => sum + (Number(item.total) || 0), 0);
   // Discount as direct amount
@@ -56,23 +75,33 @@ const CreateBill = ({ onBack, onGenerateInvoice }) => {
   // Handler to update item fields
   const handleItemChange = (idx, field, value) => {
     setItems(prev =>
-      prev.map((item, i) =>
-        i === idx
-          ? {
-              ...item,
-              [field]: value,
-              total:
-                field === 'quantity' || field === 'rate'
-                  ? (field === 'quantity'
-                      ? value
-                      : item.quantity) *
-                    (field === 'rate'
-                      ? value
-                      : item.rate)
-                  : item.total
-            }
-          : item
-      )
+      prev.map((item, i) => {
+        if (i !== idx) return item;
+        
+        // If sweet is changed, automatically set the rate
+        if (field === 'sweet') {
+          const selectedSweet = sweets.find(s => s.name === value);
+          return {
+            ...item,
+            sweet: value,
+            rate: selectedSweet ? selectedSweet.rate : item.rate,
+            total: item.quantity && selectedSweet 
+              ? item.quantity * selectedSweet.rate 
+              : (item.quantity && item.rate ? item.quantity * item.rate : item.total)
+          };
+        }
+        
+        // For other fields
+        return {
+          ...item,
+          [field]: value,
+          total:
+            field === 'quantity' || field === 'rate'
+              ? (field === 'quantity' ? value : item.quantity) *
+                (field === 'rate' ? value : item.rate)
+              : item.total
+        };
+      })
     );
   };
 
@@ -86,27 +115,55 @@ const CreateBill = ({ onBack, onGenerateInvoice }) => {
     setItems(items => items.filter((_, i) => i !== idx));
   };
 
-  const handleGeneratePDF = () => {
-    if (typeof onGenerateInvoice === 'function') {
-      onGenerateInvoice({
-        customerName,
-        mobileNo,
-        orderNo,
-        dateTime,
-        employee,
-        items: items.map(item => ({
-          sweet: item.sweet,
-          quantity: item.quantity,
-          rate: item.rate,
-          total: item.total
-        })),
-        advanceAmount: Number(advanceAmount) || 0,
-        discount: Number(discount) || 0,
-        discountAmount: discountAmount,
-        totalAmount: totalAmount,
-        grandTotal: grandTotal,
-        roundedGrandTotal: roundedGrandTotal
-      });
+  const handleGeneratePDF = async () => {
+    // Validate required fields
+    if (!customerName.trim()) {
+      alert('Please enter customer name');
+      return;
+    }
+    
+    if (items.length === 0 || !items.some(item => item.sweet && item.quantity)) {
+      alert('Please add at least one item with sweet and quantity');
+      return;
+    }
+
+    const invoiceData = {
+      customerName,
+      mobileNo,
+      orderNo,
+      dateTime,
+      employee,
+      items: items.filter(item => item.sweet && item.quantity).map(item => ({
+        sweet: item.sweet,
+        quantity: item.quantity,
+        rate: item.rate,
+        total: item.total
+      })),
+      advanceAmount: Number(advanceAmount) || 0,
+      discount: Number(discount) || 0,
+      discountAmount: discountAmount,
+      totalAmount: totalAmount,
+      grandTotal: grandTotal,
+      roundedGrandTotal: roundedGrandTotal,
+      deliveryDate: deliveryDate ? deliveryDate.toISOString().split('T')[0] : '',
+      deliveryDay: deliveryDay
+    };
+
+    try {
+      setLoading(true);
+      // Save invoice to backend
+      const savedInvoice = await createInvoice(invoiceData);
+      console.log('Invoice saved successfully:', savedInvoice);
+      
+      // Generate PDF with saved invoice data
+      if (typeof onGenerateInvoice === 'function') {
+        onGenerateInvoice(savedInvoice);
+      }
+    } catch (error) {
+      console.error('Failed to save invoice:', error);
+      alert('Failed to save invoice: ' + error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -118,6 +175,18 @@ const CreateBill = ({ onBack, onGenerateInvoice }) => {
           <div className="d-flex justify-content-between align-items-center mb-4">
             <h2 className="rk-section-title">Create Bill</h2>
           </div>
+          
+          {error && (
+            <div className="alert alert-danger" role="alert">
+              {error}
+            </div>
+          )}
+          
+          {loading && (
+            <div className="alert alert-info" role="alert">
+              Loading sweets...
+            </div>
+          )}
           <div className="rk-dashboard-card">
             <h4 className="rk-section-title">Order Details</h4>
             <div className="row mb-4">
@@ -215,7 +284,18 @@ const CreateBill = ({ onBack, onGenerateInvoice }) => {
                   {items.map((item, idx) => (
                     <tr key={idx}>
                       <td>
-                        <input className="form-control" type="text" value={item.sweet} onChange={e => handleItemChange(idx, 'sweet', e.target.value)} placeholder="Sweet name" />
+                        <select 
+                          className="form-control" 
+                          value={item.sweet} 
+                          onChange={e => handleItemChange(idx, 'sweet', e.target.value)}
+                        >
+                          <option value="">Select Sweet</option>
+                          {sweets.map(sweet => (
+                            <option key={sweet._id} value={sweet.name}>
+                              {sweet.name} - ₹{sweet.rate}
+                            </option>
+                          ))}
+                        </select>
                       </td>
                       <td>
                         <input className="form-control" type="number" min="0" value={item.quantity} onChange={e => handleItemChange(idx, 'quantity', Number(e.target.value))} placeholder="Qty" />
@@ -306,8 +386,9 @@ const CreateBill = ({ onBack, onGenerateInvoice }) => {
               marginBottom: '1.5rem',
             }}
             onClick={handleGeneratePDF}
+            disabled={loading}
           >
-            Generate PDF
+            {loading ? 'Saving Invoice...' : 'Generate PDF'}
           </button>
         </div>
       </div>
