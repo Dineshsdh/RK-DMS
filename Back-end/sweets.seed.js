@@ -2,7 +2,6 @@
 const mongoose = require('mongoose');
 const Sweet = require('./sweet.model');
 const connectDB = require('./db');
-mongoose.connect('mongodb://localhost:27017/rk_dms')
 const sweets = [
   { name: 'Milk Palkhova', rate: 320 },
   { name: 'Dry Fruit Palkhova', rate: 400 },

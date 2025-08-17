@@ -2,50 +2,41 @@
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./db');
-const Invoice = require('./invoice.model');
-const Sweet = require('./sweet.model');
-const mongoose = require('mongoose');
-mongoose.connect('mongodb://127.0.0.1:27017/rk_dms').then(() => {
-  console.log('MongoDB connected');
-}).catch(err => {
-  console.error('MongoDB connection error:', err);  
-});
+
+// Import route files
+const invoiceRoutes = require('./invoice.routes');
+const sweetRoutes = require('./sweets.routes');
 
 const app = express();
-app.use(cors());
+
+// Middleware
+app.use(cors({
+  origin: 'http://localhost:5173', // Vite default port
+  credentials: true
+}));
 app.use(express.json());
 
+// Connect to MongoDB
 connectDB();
 
-// Create invoice
-app.post('/api/invoices', async (req, res) => {
-  try {
-    const invoice = new Invoice(req.body);
-    await invoice.save();
-    res.status(201).json(invoice);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'OK', message: 'Server is running' });
 });
 
-// Get all invoices
-app.get('/api/invoices', async (req, res) => {
-  try {
-    const invoices = await Invoice.find().sort({ createdAt: -1 });
-    res.json(invoices);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+// Use route files
+app.use('/api/invoices', invoiceRoutes);
+app.use('/api/sweets', sweetRoutes);
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something went wrong!' });
 });
 
-// Get all sweets
-app.get('/api/sweets', async (req, res) => {
-  try {
-    const sweets = await Sweet.find();
-    res.json(sweets);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+// Handle undefined routes
+app.use('*', (req, res) => {
+  res.status(404).json({ error: 'Route not found' });
 });
 
 const PORT = process.env.PORT || 5000;

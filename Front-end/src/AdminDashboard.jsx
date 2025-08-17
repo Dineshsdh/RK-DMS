@@ -24,7 +24,8 @@ const AdminDashboard = ({ onCreateBill, onLogout }) => {
       setLoading(true);
       fetchInvoices()
         .then(data => {
-          setInvoices(data);
+          // Handle the new paginated response structure
+          setInvoices(data.invoices || data);
           setError(null);
         })
         .catch(err => setError(err.message))
