@@ -1,0 +1,61 @@
+.rk-login-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  background: linear-gradient(135deg, #eab308 0%, #b91c1c 60%, #7c4700 100%);
+  overflow: hidden;
+}
+.rk-login-root {
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: linear-gradient(135deg, #eab308 0%, #b91c1c 60%, #7c4700 100%);
+}
+.rk-login-bg img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 60vw;
+  max-width: 600px;
+  min-width: 300px;
+  opacity: 0.15;
+  transform: translate(-50%, -50%);
+  filter: blur(1px) drop-shadow(0 0 10px #eab308);
+}
+.rk-login-card {
+  background: linear-gradient(120deg, #fffbe6 60%, #f7e0b2 100%);
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 32px 0 rgba(185, 28, 28, 0.15);
+  border: 2.5px solid #eab308;
+  z-index: 1;
+}
+.rk-login-btn {
+  background: linear-gradient(90deg, #b91c1c 0%, #eab308 100%);
+  border: none;
+  color: #fff;
+  font-weight: bold;
+  box-shadow: 0 2px 8px 0 #eab30844;
+  transition: background 0.2s;
+  letter-spacing: 1px;
+}
+.rk-login-btn:hover {
+  background: linear-gradient(90deg, #eab308 0%, #b91c1c 100%);
+  color: #fffbe6;
+}
+.rk-logo {
+  display: block;
+  margin: 0 auto 1rem auto;
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px 0 #eab30844;
+  background: #fffbe6;
+  border: 2.5px solid #b91c1c;
+}
