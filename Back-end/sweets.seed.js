@@ -3,9 +3,9 @@ const mongoose = require('mongoose');
 const Sweet = require('./sweet.model');
 const connectDB = require('./db');
 const sweets = [
-  { name: 'Milk Palkhova', rate: 320 },
-  { name: 'Dry Fruit Palkhova', rate: 400 },
-  { name: 'Chocolate Palkhova', rate: 350 },
+  { name: 'Milk Palkhova',  rate: 320 },
+  { name: 'Dry Fruit Palkhova', rate: 400   },
+  { name: 'Chocolate Palkhova', },
   { name: 'Mango Palkhova', rate: 340 },
   { name: 'Coconut Burfi', rate: 280 },
   { name: 'Mysore Pak', rate: 300 },
@@ -17,7 +17,11 @@ const sweets = [
   { name: 'Jangiri', rate: 230 },
   { name: 'Soan Papdi', rate: 200 },
   { name: 'Motichoor Laddu', rate: 240 },
-  { name: 'Kalakand', rate: 330 }
+  { name: 'Kalakand', rate: 330 },
+  { name: 'Mixture', rate: 230 },
+  { name: 'Jalebi', rate: 430 },
+  { name: 'Karasev', rate: 300 }
+
 ];
 
 async function seedSweets() {
