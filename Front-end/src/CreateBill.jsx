@@ -15,11 +15,11 @@ import './CreateBill.css';
 
 const CreateBill = ({ onBack, onGenerateInvoice }) => {
   const employeeNames = [
-    'Ramesh',
-    'Suresh',
-    'Priya',
-    'Anjali',
-    'Vikram'
+    'Anand',
+    'Dinesh',
+    'Kama',
+    'Varun',
+    'Harish'
   ];
 
   const [employee, setEmployee] = useState('');
@@ -273,7 +273,7 @@ const CreateBill = ({ onBack, onGenerateInvoice }) => {
               <table className="table rk-bill-table">
                 <thead>
                   <tr>
-                    <th>Sweet Name</th>
+                    <th>Product Name</th>
                     <th>Quantity</th>
                     <th>Rate</th>
                     <th>Total Amount</th>
@@ -292,7 +292,7 @@ const CreateBill = ({ onBack, onGenerateInvoice }) => {
                           <option value="">Select Sweet</option>
                           {sweets.map(sweet => (
                             <option key={sweet._id} value={sweet.name}>
-                              {sweet.name} - ₹{sweet.rate}
+                              {sweet.name} 
                             </option>
                           ))}
                         </select>
