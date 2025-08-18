@@ -44,21 +44,41 @@ const Invoice = ({ billData, onBack }) => {
     return URL.createObjectURL(pdfBlob);
   };
 
-  // Send PDF link via WhatsApp
+  // Send PDF via backend to WhatsApp Cloud API
   const handleSendPDFWhatsApp = async () => {
-    // Always use the fixed number as per user request
     const phone = '918489597443';
-    const pdfUrl = await generatePDF();
-    if (!pdfUrl) {
-      alert('Failed to generate PDF.');
-      return;
+    try {
+      const input = invoiceRef.current;
+      if (!input) {
+        alert('Invoice not ready');
+        return;
+      }
+      const canvas = await html2canvas(input, { scale: 2 });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      const pdfBlob = pdf.output('blob');
+
+      const formData = new FormData();
+      formData.append('to', phone);
+      formData.append('caption', 'RK PALKHOVA & SWEETS - Invoice');
+      formData.append('file', pdfBlob, 'invoice.pdf');
+
+      const resp = await fetch('http://localhost:5000/api/whatsapp/send-pdf', {
+        method: 'POST',
+        body: formData,
+      });
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to send WhatsApp message');
+      }
+      alert('Invoice sent to WhatsApp successfully');
+    } catch (e) {
+      console.error(e);
+      alert(`Failed to send invoice to WhatsApp: ${e.message}`);
     }
-    // WhatsApp does not support direct file sending, so we send a link
-    // The link is a blob URL, which only works on the sender's device
-    // For real sharing, upload to a server or cloud storage
-    const msg = `*RK PALKHOVA & SWEETS*%0AInvoice PDF: ${pdfUrl}%0AThank you for your order!`;
-    const url = `https://wa.me/${phone}?text=${msg}`;
-    window.open(url, '_blank');
   };
   const getWhatsAppMessage = () => {
     let msg = `*RK PALKHOVA & SWEETS*%0A`;
