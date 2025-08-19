@@ -164,46 +164,48 @@ const AdminDashboard = ({ onCreateBill, onLogout }) => {
         marginBottom: '2rem',
       }}>
         {activeTab === 'all' && (
-          <div style={{ width: '100%' }}>
-            <h4 style={{ color: '#b91c1c', margin: '1rem 0' }}>All Invoices</h4>
-            {loading && <div>Loading...</div>}
-            {error && <div style={{ color: 'red' }}>{error}</div>}
-            {!loading && !error && (
-              <div style={{ maxHeight: 400, overflowY: 'auto' }}>
-                <table className="table table-bordered table-striped" style={{ fontSize: '1rem', background: '#fff' }}>
-                  <thead style={{ background: '#eab308', color: '#b91c1c' }}>
-                    <tr>
-                      <th>Order No</th>
-                      <th>Customer</th>
-                      <th>Mobile</th>
-                      <th>Date & Time</th>
-                      <th>Employee</th>
-                      <th>Amount</th>
-                      <th>Delivery Date</th>
-                      <th>Delivery Day</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {invoices.length === 0 ? (
-                      <tr><td colSpan={8} style={{ textAlign: 'center' }}>No invoices found.</td></tr>
-                    ) : (
-                      invoices.map(inv => (
-                        <tr key={inv._id}>
-                          <td>{inv.orderNo}</td>
-                          <td>{inv.customerName}</td>
-                          <td>{inv.mobileNo}</td>
-                          <td>{inv.dateTime}</td>
-                          <td>{inv.employee}</td>
-                          <td>₹{inv.roundedGrandTotal}</td>
-                          <td>{inv.deliveryDate}</td>
-                          <td>{inv.deliveryDay}</td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            )}
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ width: '100%', maxWidth: 900 }}>
+              <h4 style={{ color: '#b91c1c', margin: '1rem 0', textAlign: 'center' }}>All Invoices</h4>
+              {loading && <div style={{ textAlign: 'center' }}>Loading...</div>}
+              {error && <div style={{ color: 'red', textAlign: 'center' }}>{error}</div>}
+              {!loading && !error && (
+                <div style={{ maxHeight: 400, overflowY: 'auto' }}>
+                  <table className="table table-bordered table-striped" style={{ fontSize: '1rem', background: '#fff', margin: '0 auto' }}>
+                    <thead style={{ background: '#eab308', color: '#b91c1c' }}>
+                      <tr>
+                        <th>Order No</th>
+                        <th>Customer</th>
+                        <th>Mobile</th>
+                        <th>Date & Time</th>
+                        <th>Employee</th>
+                        <th>Amount</th>
+                        <th>Delivery Date</th>
+                        <th>Delivery Day</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {invoices.length === 0 ? (
+                        <tr><td colSpan={8} style={{ textAlign: 'center' }}>No invoices found.</td></tr>
+                      ) : (
+                        invoices.map(inv => (
+                          <tr key={inv._id}>
+                            <td>{inv.orderNo}</td>
+                            <td>{inv.customerName}</td>
+                            <td>{inv.mobileNo}</td>
+                            <td>{inv.dateTime}</td>
+                            <td>{inv.employee}</td>
+                            <td>₹{inv.roundedGrandTotal}</td>
+                            <td>{inv.deliveryDate}</td>
+                            <td>{inv.deliveryDay}</td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
         )}
         {activeTab === 'processing' && (

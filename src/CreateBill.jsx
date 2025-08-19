@@ -16,11 +16,11 @@ import './CreateBill.css';
 
 const CreateBill = ({ onBack, onGenerateInvoice }) => {
   const employeeNames = [
-    'Ramesh',
-    'Suresh',
-    'Priya',
-    'Anjali',
-    'Vikram'
+    'Anand',
+    'Dinesh',
+    'Kama',
+    'Varun',
+    'Harish'
   ];
 
   const [employee, setEmployee] = useState('');
@@ -128,8 +128,8 @@ const CreateBill = ({ onBack, onGenerateInvoice }) => {
       <button className="rk-back-btn" onClick={onBack}>&larr; Back</button>
       <div>
         <div className="container py-4">
-          <div className="d-flex justify-content-between align-items-center mb-4">
-            <h2 className="rk-section-title">Create Bill</h2>
+          <div className="d-flex justify-content-center align-items-center mb-4">
+            <h2 className="rk-section-title" style={{ textAlign: 'center', width: '100%' }}>Create Bill</h2>
           </div>
           <div className="rk-dashboard-card">
             <h4 className="rk-section-title">Order Details</h4>
