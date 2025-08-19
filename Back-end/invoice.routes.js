@@ -3,6 +3,35 @@ const express = require('express');
 const Invoice = require('./invoice.model');
 const router = express.Router();
 
+// Get invoices by status (with optional pagination)
+router.get('/status/:status', async (req, res) => {
+  try {
+    const validStatuses = ['processing', 'completed'];
+    const { status } = req.params;
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ error: 'Invalid status' });
+    }
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const [invoices, total] = await Promise.all([
+      Invoice.find({ status }).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      Invoice.countDocuments({ status })
+    ]);
+
+    res.json({
+      invoices,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      totalInvoices: total
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Get all invoices
 router.get('/', async (req, res) => {
   try {
@@ -61,6 +90,9 @@ router.post('/', async (req, res) => {
       invoiceData.orderNo = `ORD${String(count + 1).padStart(4, '0')}`;
     }
 
+    if (!invoiceData.status) {
+      invoiceData.status = 'processing';
+    }
     const invoice = new Invoice(invoiceData);
     await invoice.save();
     res.status(201).json(invoice);
