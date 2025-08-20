@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { fetchInvoices } from './api';
+import { fetchInvoices, fetchInvoicesByStatus } from './api';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './AdminDashboard.css';
 import rkLogo from './assets/Rk Palkhova Logo_page-0001.jpg';
@@ -20,17 +20,29 @@ const AdminDashboard = ({ onCreateBill, onLogout }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (activeTab === 'all') {
-      setLoading(true);
-      fetchInvoices()
-        .then(data => {
-          // Handle the new paginated response structure
+    setLoading(true);
+    const load = async () => {
+      try {
+        if (activeTab === 'all') {
+          const data = await fetchInvoices();
           setInvoices(data.invoices || data);
-          setError(null);
-        })
-        .catch(err => setError(err.message))
-        .finally(() => setLoading(false));
-    }
+        } else if (activeTab === 'processing') {
+          const data = await fetchInvoicesByStatus('processing');
+          setInvoices(data.invoices || data);
+        } else if (activeTab === 'completed') {
+          const data = await fetchInvoicesByStatus('completed');
+          setInvoices(data.invoices || data);
+        } else {
+          setInvoices([]);
+        }
+        setError(null);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
   }, [activeTab]);
 
   return (
@@ -182,11 +194,13 @@ const AdminDashboard = ({ onCreateBill, onLogout }) => {
                         <th>Amount</th>
                         <th>Delivery Date</th>
                         <th>Delivery Day</th>
+                        <th>Status</th>
+                        <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {invoices.length === 0 ? (
-                        <tr><td colSpan={8} style={{ textAlign: 'center' }}>No invoices found.</td></tr>
+                        <tr><td colSpan={10} style={{ textAlign: 'center' }}>No invoices found.</td></tr>
                       ) : (
                         invoices.map(inv => (
                           <tr key={inv._id}>
@@ -198,6 +212,46 @@ const AdminDashboard = ({ onCreateBill, onLogout }) => {
                             <td>₹{inv.roundedGrandTotal}</td>
                             <td>{inv.deliveryDate}</td>
                             <td>{inv.deliveryDay}</td>
+                            <td style={{ textTransform: 'capitalize' }}>{inv.status || 'processing'}</td>
+                            <td>
+                              <button
+                                onClick={async () => {
+                                  try {
+                                    setLoading(true);
+                                    const res = await fetch(`http://localhost:5000/api/invoices/${inv._id}`, {
+                                      method: 'PUT',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({ status: inv.status === 'processing' ? 'completed' : 'processing' })
+                                    });
+                                    if (!res.ok) {
+                                      const e = await res.json().catch(() => ({}));
+                                      throw new Error(e.error || 'Failed to update invoice');
+                                    }
+                                    if (activeTab === 'all') {
+                                      const data = await fetchInvoices();
+                                      setInvoices(data.invoices || data);
+                                    } else {
+                                      const data = await fetchInvoicesByStatus(activeTab);
+                                      setInvoices(data.invoices || data);
+                                    }
+                                  } catch (e) {
+                                    alert(e.message);
+                                  } finally {
+                                    setLoading(false);
+                                  }
+                                }}
+                                style={{
+                                  background: inv.status === 'processing' ? '#16a34a' : '#f59e0b',
+                                  color: '#fff',
+                                  border: 'none',
+                                  borderRadius: 6,
+                                  padding: '6px 12px',
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                {inv.status === 'processing' ? 'Mark Completed' : 'Mark Processing'}
+                              </button>
+                            </td>
                           </tr>
                         ))
                       )}
@@ -209,20 +263,223 @@ const AdminDashboard = ({ onCreateBill, onLogout }) => {
           </div>
         )}
         {activeTab === 'processing' && (
-          <div style={{ width: '100%', textAlign: 'center', fontSize: '1.2rem', color: '#eab308' }}>
-            Processing Orders will be shown here.
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ width: '100%', maxWidth: 900 }}>
+              <h4 style={{ color: '#b91c1c', margin: '1rem 0', textAlign: 'center' }}>Processing Invoices</h4>
+              {loading && <div style={{ textAlign: 'center' }}>Loading...</div>}
+              {error && <div style={{ color: 'red', textAlign: 'center' }}>{error}</div>}
+              {!loading && !error && (
+                <div style={{ maxHeight: 400, overflowY: 'auto' }}>
+                  <table className="table table-bordered table-striped" style={{ fontSize: '1rem', background: '#fff', margin: '0 auto' }}>
+                    <thead style={{ background: '#eab308', color: '#b91c1c' }}>
+                      <tr>
+                        <th>Order No</th>
+                        <th>Customer</th>
+                        <th>Amount</th>
+                        <th>Delivery</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {invoices.length === 0 ? (
+                        <tr><td colSpan={6} style={{ textAlign: 'center' }}>No invoices found.</td></tr>
+                      ) : (
+                        invoices.map(inv => (
+                          <tr key={inv._id}>
+                            <td>{inv.orderNo}</td>
+                            <td>{inv.customerName}</td>
+                            <td>₹{inv.roundedGrandTotal}</td>
+                            <td>{inv.deliveryDate} ({inv.deliveryDay})</td>
+                            <td style={{ textTransform: 'capitalize' }}>{inv.status || 'processing'}</td>
+                            <td>
+                              <button
+                                onClick={async () => {
+                                  try {
+                                    setLoading(true);
+                                    const res = await fetch(`http://localhost:5000/api/invoices/${inv._id}`, {
+                                      method: 'PUT',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({ status: inv.status === 'processing' ? 'completed' : 'processing' })
+                                    });
+                                    if (!res.ok) {
+                                      const e = await res.json().catch(() => ({}));
+                                      throw new Error(e.error || 'Failed to update invoice');
+                                    }
+                                    const data = await fetchInvoicesByStatus('processing');
+                                    setInvoices(data.invoices || data);
+                                  } catch (e) {
+                                    alert(e.message);
+                                  } finally {
+                                    setLoading(false);
+                                  }
+                                }}
+                                className="btn btn-success btn-sm"
+                              >Mark Completed</button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
         )}
         {activeTab === 'completed' && (
-          <div style={{ width: '100%', textAlign: 'center', fontSize: '1.2rem', color: '#16a34a' }}>
-            Completed Orders will be shown here.
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ width: '100%', maxWidth: 900 }}>
+              <h4 style={{ color: '#16a34a', margin: '1rem 0', textAlign: 'center' }}>Completed Invoices</h4>
+              {loading && <div style={{ textAlign: 'center' }}>Loading...</div>}
+              {error && <div style={{ color: 'red', textAlign: 'center' }}>{error}</div>}
+              {!loading && !error && (
+                <div style={{ maxHeight: 400, overflowY: 'auto' }}>
+                  <table className="table table-bordered table-striped" style={{ fontSize: '1rem', background: '#fff', margin: '0 auto' }}>
+                    <thead style={{ background: '#eab308', color: '#b91c1c' }}>
+                      <tr>
+                        <th>Order No</th>
+                        <th>Customer</th>
+                        <th>Amount</th>
+                        <th>Delivery</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {invoices.length === 0 ? (
+                        <tr><td colSpan={6} style={{ textAlign: 'center' }}>No invoices found.</td></tr>
+                      ) : (
+                        invoices.map(inv => (
+                          <tr key={inv._id}>
+                            <td>{inv.orderNo}</td>
+                            <td>{inv.customerName}</td>
+                            <td>₹{inv.roundedGrandTotal}</td>
+                            <td>{inv.deliveryDate} ({inv.deliveryDay})</td>
+                            <td style={{ textTransform: 'capitalize' }}>{inv.status || 'processing'}</td>
+                            <td>
+                              <button
+                                onClick={async () => {
+                                  try {
+                                    setLoading(true);
+                                    const res = await fetch(`http://localhost:5000/api/invoices/${inv._id}`, {
+                                      method: 'PUT',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({ status: inv.status === 'processing' ? 'completed' : 'processing' })
+                                    });
+                                    if (!res.ok) {
+                                      const e = await res.json().catch(() => ({}));
+                                      throw new Error(e.error || 'Failed to update invoice');
+                                    }
+                                    const data = await fetchInvoicesByStatus('completed');
+                                    setInvoices(data.invoices || data);
+                                  } catch (e) {
+                                    alert(e.message);
+                                  } finally {
+                                    setLoading(false);
+                                  }
+                                }}
+                                className="btn btn-warning btn-sm"
+                              >Mark Processing</button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
         )}
         {activeTab === 'visualization' && (
-          <div style={{ width: '100%', textAlign: 'center', fontSize: '1.2rem', color: '#0ea5e9' }}>
-            Visualization/Analytics will be shown here.
-          </div>
+          <VisualizationSection />
         )}
+      </div>
+    </div>
+  );
+};
+
+// Simple Chart.js visualization component for daily totals
+const VisualizationSection = () => {
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const chartRef = React.useRef(null);
+  const chartInstanceRef = React.useRef(null);
+
+  useEffect(() => {
+    const init = async () => {
+      setLoading(true);
+      try {
+        const resp = await fetch('http://localhost:5000/api/invoices?page=1&limit=1000');
+        if (!resp.ok) {
+          const e = await resp.json().catch(() => ({}));
+          throw new Error(e.error || 'Failed to fetch invoices');
+        }
+        const data = await resp.json();
+        const invoices = data.invoices || data;
+        const totalsByDate = {};
+        invoices.forEach(inv => {
+          const d = (inv.deliveryDate && inv.deliveryDate.length >= 10 ? inv.deliveryDate : (inv.createdAt || '')).slice(0,10);
+          const amt = Number(inv.roundedGrandTotal || inv.grandTotal || inv.totalAmount || 0);
+          if (d) {
+            totalsByDate[d] = (totalsByDate[d] || 0) + amt;
+          }
+        });
+        const labels = Object.keys(totalsByDate).sort();
+        const values = labels.map(l => totalsByDate[l]);
+
+        const { Chart } = await import('chart.js/auto');
+        if (chartInstanceRef.current) {
+          chartInstanceRef.current.destroy();
+        }
+        const ctx = chartRef.current.getContext('2d');
+        chartInstanceRef.current = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [{
+              label: 'Daily Invoice Amount (₹)',
+              data: values,
+              borderColor: '#b91c1c',
+              backgroundColor: 'rgba(234, 179, 8, 0.3)',
+              tension: 0.2,
+              fill: true,
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { display: true } },
+            scales: {
+              x: { title: { display: true, text: 'Date' } },
+              y: { title: { display: true, text: 'Amount (₹)' }, beginAtZero: true }
+            }
+          }
+        });
+        setError(null);
+      } catch (e) {
+        setError(e.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    init();
+    return () => {
+      if (chartInstanceRef.current) {
+        chartInstanceRef.current.destroy();
+      }
+    };
+  }, []);
+
+  return (
+    <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '1rem 0' }}>
+      <div style={{ width: '100%', maxWidth: 900 }}>
+        <h4 style={{ color: '#0ea5e9', margin: '1rem 0', textAlign: 'center' }}>Daily Invoice Amount</h4>
+        {loading && <div style={{ textAlign: 'center' }}>Loading chart...</div>}
+        {error && <div style={{ color: 'red', textAlign: 'center' }}>{error}</div>}
+        <div style={{ background: '#fffbe6', border: '1px solid #eab308', borderRadius: 8, padding: 16 }}>
+          <canvas ref={chartRef} height="180"></canvas>
+        </div>
       </div>
     </div>
   );

@@ -52,6 +52,10 @@ export const searchInvoices = (query) =>
 export const fetchInvoicesByDateRange = (startDate, endDate) => 
   apiRequest(`/invoices/date-range/${startDate}/${endDate}`);
 
+// New: Fetch invoices by status
+export const fetchInvoicesByStatus = (status, page = 1, limit = 10) =>
+  apiRequest(`/invoices/status/${encodeURIComponent(status)}?page=${page}&limit=${limit}`);
+
 // Sweet API functions
 export const fetchSweets = () => 
   apiRequest('/sweets');

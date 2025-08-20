@@ -4,7 +4,21 @@ const xlsx = require('xlsx');
 const fs = require('fs');
 const path = require('path');
 
-const excelPath = path.join(__dirname, 'ITEM LIST.xlsx');
+// Support multiple possible filenames
+const candidateNames = ['ITEM LIST.xlsx', 'ITEM.xlsx', 'Items.xlsx', 'items.xlsx'];
+let excelPath = null;
+for (const name of candidateNames) {
+  const p = path.join(__dirname, name);
+  if (fs.existsSync(p)) {
+    excelPath = p;
+    break;
+  }
+}
+if (!excelPath) {
+  console.error('Excel file not found. Expected one of: ' + candidateNames.join(', '));
+  process.exit(1);
+}
+
 const seedPath = path.join(__dirname, 'sweets.seed.js');
 
 // Read Excel file
