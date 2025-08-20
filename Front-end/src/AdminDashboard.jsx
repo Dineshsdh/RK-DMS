@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { fetchInvoices, fetchInvoicesByStatus } from './api';
+import { fetchInvoices, fetchInvoicesByStatus, updateInvoice, deleteInvoice } from './api';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './AdminDashboard.css';
 import rkLogo from './assets/Rk Palkhova Logo_page-0001.jpg';
@@ -8,9 +8,9 @@ import rkLogo from './assets/Rk Palkhova Logo_page-0001.jpg';
 
 const menuTabs = [
   { key: 'all', label: 'All' },
-  { key: 'processing', label: 'Processing' },
-  { key: 'completed', label: 'Completed' },
-  { key: 'visualization', label: 'Visualization' },
+  { key: 'pending', label: 'Pending' },
+  { key: 'delivered', label: 'Delivered' },
+  { key: 'cancelled', label: 'Cancelled' },
 ];
 
 const AdminDashboard = ({ onCreateBill, onLogout }) => {
@@ -18,6 +18,7 @@ const AdminDashboard = ({ onCreateBill, onLogout }) => {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [previewInvoice, setPreviewInvoice] = useState(null);
 
   useEffect(() => {
     setLoading(true);
@@ -26,11 +27,14 @@ const AdminDashboard = ({ onCreateBill, onLogout }) => {
         if (activeTab === 'all') {
           const data = await fetchInvoices();
           setInvoices(data.invoices || data);
-        } else if (activeTab === 'processing') {
-          const data = await fetchInvoicesByStatus('processing');
+        } else if (activeTab === 'pending') {
+          const data = await fetchInvoicesByStatus('pending');
           setInvoices(data.invoices || data);
-        } else if (activeTab === 'completed') {
-          const data = await fetchInvoicesByStatus('completed');
+        } else if (activeTab === 'delivered') {
+          const data = await fetchInvoicesByStatus('delivered');
+          setInvoices(data.invoices || data);
+        } else if (activeTab === 'cancelled') {
+          const data = await fetchInvoicesByStatus('cancelled');
           setInvoices(data.invoices || data);
         } else {
           setInvoices([]);
@@ -188,69 +192,73 @@ const AdminDashboard = ({ onCreateBill, onLogout }) => {
                       <tr>
                         <th>Order No</th>
                         <th>Customer</th>
-                        <th>Mobile</th>
-                        <th>Date & Time</th>
-                        <th>Employee</th>
-                        <th>Amount</th>
-                        <th>Delivery Date</th>
-                        <th>Delivery Day</th>
                         <th>Status</th>
                         <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {invoices.length === 0 ? (
-                        <tr><td colSpan={10} style={{ textAlign: 'center' }}>No invoices found.</td></tr>
+                        <tr><td colSpan={4} style={{ textAlign: 'center' }}>No invoices found.</td></tr>
                       ) : (
                         invoices.map(inv => (
                           <tr key={inv._id}>
                             <td>{inv.orderNo}</td>
                             <td>{inv.customerName}</td>
-                            <td>{inv.mobileNo}</td>
-                            <td>{inv.dateTime}</td>
-                            <td>{inv.employee}</td>
-                            <td>₹{inv.roundedGrandTotal}</td>
-                            <td>{inv.deliveryDate}</td>
-                            <td>{inv.deliveryDay}</td>
-                            <td style={{ textTransform: 'capitalize' }}>{inv.status || 'processing'}</td>
+                            <td style={{ textTransform: 'capitalize' }}>{inv.status || 'pending'}</td>
                             <td>
-                              <button
-                                onClick={async () => {
-                                  try {
-                                    setLoading(true);
-                                    const res = await fetch(`http://localhost:5000/api/invoices/${inv._id}`, {
-                                      method: 'PUT',
-                                      headers: { 'Content-Type': 'application/json' },
-                                      body: JSON.stringify({ status: inv.status === 'processing' ? 'completed' : 'processing' })
-                                    });
-                                    if (!res.ok) {
-                                      const e = await res.json().catch(() => ({}));
-                                      throw new Error(e.error || 'Failed to update invoice');
+                              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                                <button
+                                  onClick={() => setPreviewInvoice(inv)}
+                                  className="btn btn-primary btn-sm"
+                                >View</button>
+                                <select
+                                  className="form-select form-select-sm"
+                                  value={inv.status || 'pending'}
+                                  onChange={async (e) => {
+                                    try {
+                                      setLoading(true);
+                                      await updateInvoice(inv._id, { status: e.target.value });
+                                      if (activeTab === 'all') {
+                                        const data = await fetchInvoices();
+                                        setInvoices(data.invoices || data);
+                                      } else {
+                                        const data = await fetchInvoicesByStatus(activeTab);
+                                        setInvoices(data.invoices || data);
+                                      }
+                                    } catch (err) {
+                                      alert(err.message);
+                                    } finally {
+                                      setLoading(false);
                                     }
-                                    if (activeTab === 'all') {
-                                      const data = await fetchInvoices();
-                                      setInvoices(data.invoices || data);
-                                    } else {
-                                      const data = await fetchInvoicesByStatus(activeTab);
-                                      setInvoices(data.invoices || data);
+                                  }}
+                                  style={{ width: 140 }}
+                                >
+                                  <option value="pending">Pending</option>
+                                  <option value="delivered">Delivered</option>
+                                  <option value="cancelled">Cancelled</option>
+                                </select>
+                                <button
+                                  className="btn btn-danger btn-sm"
+                                  onClick={async () => {
+                                    if (!confirm('Delete this invoice and its PDF?')) return;
+                                    try {
+                                      setLoading(true);
+                                      await deleteInvoice(inv._id);
+                                      if (activeTab === 'all') {
+                                        const data = await fetchInvoices();
+                                        setInvoices(data.invoices || data);
+                                      } else {
+                                        const data = await fetchInvoicesByStatus(activeTab);
+                                        setInvoices(data.invoices || data);
+                                      }
+                                    } catch (err) {
+                                      alert(err.message);
+                                    } finally {
+                                      setLoading(false);
                                     }
-                                  } catch (e) {
-                                    alert(e.message);
-                                  } finally {
-                                    setLoading(false);
-                                  }
-                                }}
-                                style={{
-                                  background: inv.status === 'processing' ? '#16a34a' : '#f59e0b',
-                                  color: '#fff',
-                                  border: 'none',
-                                  borderRadius: 6,
-                                  padding: '6px 12px',
-                                  cursor: 'pointer',
-                                }}
-                              >
-                                {inv.status === 'processing' ? 'Mark Completed' : 'Mark Processing'}
-                              </button>
+                                  }}
+                                >Delete</button>
+                              </div>
                             </td>
                           </tr>
                         ))
@@ -262,10 +270,10 @@ const AdminDashboard = ({ onCreateBill, onLogout }) => {
             </div>
           </div>
         )}
-        {activeTab === 'processing' && (
+        {activeTab === 'pending' && (
           <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <div style={{ width: '100%', maxWidth: 900 }}>
-              <h4 style={{ color: '#b91c1c', margin: '1rem 0', textAlign: 'center' }}>Processing Invoices</h4>
+              <h4 style={{ color: '#b91c1c', margin: '1rem 0', textAlign: 'center' }}>Pending Invoices</h4>
               {loading && <div style={{ textAlign: 'center' }}>Loading...</div>}
               {error && <div style={{ color: 'red', textAlign: 'center' }}>{error}</div>}
               {!loading && !error && (
@@ -275,47 +283,63 @@ const AdminDashboard = ({ onCreateBill, onLogout }) => {
                       <tr>
                         <th>Order No</th>
                         <th>Customer</th>
-                        <th>Amount</th>
-                        <th>Delivery</th>
                         <th>Status</th>
                         <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {invoices.length === 0 ? (
-                        <tr><td colSpan={6} style={{ textAlign: 'center' }}>No invoices found.</td></tr>
+                        <tr><td colSpan={4} style={{ textAlign: 'center' }}>No invoices found.</td></tr>
                       ) : (
                         invoices.map(inv => (
                           <tr key={inv._id}>
                             <td>{inv.orderNo}</td>
                             <td>{inv.customerName}</td>
-                            <td>₹{inv.roundedGrandTotal}</td>
-                            <td>{inv.deliveryDate} ({inv.deliveryDay})</td>
-                            <td style={{ textTransform: 'capitalize' }}>{inv.status || 'processing'}</td>
+                            <td style={{ textTransform: 'capitalize' }}>{inv.status || 'pending'}</td>
                             <td>
-                              <button
-                                onClick={async () => {
-                                  try {
-                                    setLoading(true);
-                                    const res = await fetch(`http://localhost:5000/api/invoices/${inv._id}`, {
-                                      method: 'PUT',
-                                      headers: { 'Content-Type': 'application/json' },
-                                      body: JSON.stringify({ status: inv.status === 'processing' ? 'completed' : 'processing' })
-                                    });
-                                    if (!res.ok) {
-                                      const e = await res.json().catch(() => ({}));
-                                      throw new Error(e.error || 'Failed to update invoice');
+                              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                                <button
+                                  onClick={() => setPreviewInvoice(inv)}
+                                  className="btn btn-primary btn-sm"
+                                >View</button>
+                                <select
+                                  className="form-select form-select-sm"
+                                  value={inv.status || 'pending'}
+                                  onChange={async (e) => {
+                                    try {
+                                      setLoading(true);
+                                      await updateInvoice(inv._id, { status: e.target.value });
+                                      const data = await fetchInvoicesByStatus('pending');
+                                      setInvoices(data.invoices || data);
+                                    } catch (err) {
+                                      alert(err.message);
+                                    } finally {
+                                      setLoading(false);
                                     }
-                                    const data = await fetchInvoicesByStatus('processing');
-                                    setInvoices(data.invoices || data);
-                                  } catch (e) {
-                                    alert(e.message);
-                                  } finally {
-                                    setLoading(false);
-                                  }
-                                }}
-                                className="btn btn-success btn-sm"
-                              >Mark Completed</button>
+                                  }}
+                                  style={{ width: 140 }}
+                                >
+                                  <option value="pending">Pending</option>
+                                  <option value="delivered">Delivered</option>
+                                  <option value="cancelled">Cancelled</option>
+                                </select>
+                                <button
+                                  className="btn btn-danger btn-sm"
+                                  onClick={async () => {
+                                    if (!confirm('Delete this invoice and its PDF?')) return;
+                                    try {
+                                      setLoading(true);
+                                      await deleteInvoice(inv._id);
+                                      const data = await fetchInvoicesByStatus('pending');
+                                      setInvoices(data.invoices || data);
+                                    } catch (err) {
+                                      alert(err.message);
+                                    } finally {
+                                      setLoading(false);
+                                    }
+                                  }}
+                                >Delete</button>
+                              </div>
                             </td>
                           </tr>
                         ))
@@ -327,10 +351,10 @@ const AdminDashboard = ({ onCreateBill, onLogout }) => {
             </div>
           </div>
         )}
-        {activeTab === 'completed' && (
+        {activeTab === 'delivered' && (
           <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <div style={{ width: '100%', maxWidth: 900 }}>
-              <h4 style={{ color: '#16a34a', margin: '1rem 0', textAlign: 'center' }}>Completed Invoices</h4>
+              <h4 style={{ color: '#16a34a', margin: '1rem 0', textAlign: 'center' }}>Delivered Invoices</h4>
               {loading && <div style={{ textAlign: 'center' }}>Loading...</div>}
               {error && <div style={{ color: 'red', textAlign: 'center' }}>{error}</div>}
               {!loading && !error && (
@@ -340,47 +364,63 @@ const AdminDashboard = ({ onCreateBill, onLogout }) => {
                       <tr>
                         <th>Order No</th>
                         <th>Customer</th>
-                        <th>Amount</th>
-                        <th>Delivery</th>
                         <th>Status</th>
                         <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {invoices.length === 0 ? (
-                        <tr><td colSpan={6} style={{ textAlign: 'center' }}>No invoices found.</td></tr>
+                        <tr><td colSpan={4} style={{ textAlign: 'center' }}>No invoices found.</td></tr>
                       ) : (
                         invoices.map(inv => (
                           <tr key={inv._id}>
                             <td>{inv.orderNo}</td>
                             <td>{inv.customerName}</td>
-                            <td>₹{inv.roundedGrandTotal}</td>
-                            <td>{inv.deliveryDate} ({inv.deliveryDay})</td>
-                            <td style={{ textTransform: 'capitalize' }}>{inv.status || 'processing'}</td>
+                            <td style={{ textTransform: 'capitalize' }}>{inv.status || 'pending'}</td>
                             <td>
-                              <button
-                                onClick={async () => {
-                                  try {
-                                    setLoading(true);
-                                    const res = await fetch(`http://localhost:5000/api/invoices/${inv._id}`, {
-                                      method: 'PUT',
-                                      headers: { 'Content-Type': 'application/json' },
-                                      body: JSON.stringify({ status: inv.status === 'processing' ? 'completed' : 'processing' })
-                                    });
-                                    if (!res.ok) {
-                                      const e = await res.json().catch(() => ({}));
-                                      throw new Error(e.error || 'Failed to update invoice');
+                              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                                <button
+                                  onClick={() => setPreviewInvoice(inv)}
+                                  className="btn btn-primary btn-sm"
+                                >View</button>
+                                <select
+                                  className="form-select form-select-sm"
+                                  value={inv.status || 'pending'}
+                                  onChange={async (e) => {
+                                    try {
+                                      setLoading(true);
+                                      await updateInvoice(inv._id, { status: e.target.value });
+                                      const data = await fetchInvoicesByStatus('delivered');
+                                      setInvoices(data.invoices || data);
+                                    } catch (err) {
+                                      alert(err.message);
+                                    } finally {
+                                      setLoading(false);
                                     }
-                                    const data = await fetchInvoicesByStatus('completed');
-                                    setInvoices(data.invoices || data);
-                                  } catch (e) {
-                                    alert(e.message);
-                                  } finally {
-                                    setLoading(false);
-                                  }
-                                }}
-                                className="btn btn-warning btn-sm"
-                              >Mark Processing</button>
+                                  }}
+                                  style={{ width: 140 }}
+                                >
+                                  <option value="pending">Pending</option>
+                                  <option value="delivered">Delivered</option>
+                                  <option value="cancelled">Cancelled</option>
+                                </select>
+                                <button
+                                  className="btn btn-danger btn-sm"
+                                  onClick={async () => {
+                                    if (!confirm('Delete this invoice and its PDF?')) return;
+                                    try {
+                                      setLoading(true);
+                                      await deleteInvoice(inv._id);
+                                      const data = await fetchInvoicesByStatus('delivered');
+                                      setInvoices(data.invoices || data);
+                                    } catch (err) {
+                                      alert(err.message);
+                                    } finally {
+                                      setLoading(false);
+                                    }
+                                  }}
+                                >Delete</button>
+                              </div>
                             </td>
                           </tr>
                         ))
@@ -392,10 +432,110 @@ const AdminDashboard = ({ onCreateBill, onLogout }) => {
             </div>
           </div>
         )}
-        {activeTab === 'visualization' && (
-          <VisualizationSection />
+        {activeTab === 'cancelled' && (
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ width: '100%', maxWidth: 900 }}>
+              <h4 style={{ color: '#7c4700', margin: '1rem 0', textAlign: 'center' }}>Cancelled Invoices</h4>
+              {loading && <div style={{ textAlign: 'center' }}>Loading...</div>}
+              {error && <div style={{ color: 'red', textAlign: 'center' }}>{error}</div>}
+              {!loading && !error && (
+                <div style={{ maxHeight: 400, overflowY: 'auto' }}>
+                  <table className="table table-bordered table-striped" style={{ fontSize: '1rem', background: '#fff', margin: '0 auto' }}>
+                    <thead style={{ background: '#eab308', color: '#b91c1c' }}>
+                      <tr>
+                        <th>Order No</th>
+                        <th>Customer</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {invoices.length === 0 ? (
+                        <tr><td colSpan={4} style={{ textAlign: 'center' }}>No invoices found.</td></tr>
+                      ) : (
+                        invoices.map(inv => (
+                          <tr key={inv._id}>
+                            <td>{inv.orderNo}</td>
+                            <td>{inv.customerName}</td>
+                            <td style={{ textTransform: 'capitalize' }}>{inv.status || 'pending'}</td>
+                            <td>
+                              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                                <button
+                                  onClick={() => setPreviewInvoice(inv)}
+                                  className="btn btn-primary btn-sm"
+                                >View</button>
+                                <select
+                                  className="form-select form-select-sm"
+                                  value={inv.status || 'pending'}
+                                  onChange={async (e) => {
+                                    try {
+                                      setLoading(true);
+                                      await updateInvoice(inv._id, { status: e.target.value });
+                                      const data = await fetchInvoicesByStatus('cancelled');
+                                      setInvoices(data.invoices || data);
+                                    } catch (err) {
+                                      alert(err.message);
+                                    } finally {
+                                      setLoading(false);
+                                    }
+                                  }}
+                                  style={{ width: 140 }}
+                                >
+                                  <option value="pending">Pending</option>
+                                  <option value="delivered">Delivered</option>
+                                  <option value="cancelled">Cancelled</option>
+                                </select>
+                                <button
+                                  className="btn btn-danger btn-sm"
+                                  onClick={async () => {
+                                    if (!confirm('Delete this invoice and its PDF?')) return;
+                                    try {
+                                      setLoading(true);
+                                      await deleteInvoice(inv._id);
+                                      const data = await fetchInvoicesByStatus('cancelled');
+                                      setInvoices(data.invoices || data);
+                                    } catch (err) {
+                                      alert(err.message);
+                                    } finally {
+                                      setLoading(false);
+                                    }
+                                  }}
+                                >Delete</button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
         )}
       </div>
+
+      {/* PDF Preview Modal */}
+      {previewInvoice && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
+        }}>
+          <div style={{ background: '#fff', borderRadius: 8, padding: 16, width: '820px', maxWidth: '95vw' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <h5 style={{ margin: 0 }}>Invoice Preview</h5>
+              <button className="btn btn-sm btn-secondary" onClick={() => setPreviewInvoice(null)}>Close</button>
+            </div>
+            <div style={{ width: '100%', height: '1150px', overflow: 'hidden', border: '1px solid #ddd', borderRadius: 4 }}>
+              <iframe
+                title="Invoice PDF"
+                src={`http://localhost:5000/api/invoices/${previewInvoice._id}/pdf`}
+                style={{ width: '100%', height: '100%', border: 'none', background: '#f5f5f5' }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

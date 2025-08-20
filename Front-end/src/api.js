@@ -1,5 +1,5 @@
 // api.js - helper for backend API calls
-const API_BASE_URL = 'http://localhost:5000/api';
+export const API_BASE_URL = 'http://localhost:5000/api';
 
 // Helper function for API requests
 const apiRequest = async (url, options = {}) => {

@@ -155,10 +155,8 @@ const CreateBill = ({ onBack, onGenerateInvoice }) => {
       const savedInvoice = await createInvoice(invoiceData);
       console.log('Invoice saved successfully:', savedInvoice);
       
-      // Generate PDF with saved invoice data
-      if (typeof onGenerateInvoice === 'function') {
-        onGenerateInvoice(savedInvoice);
-      }
+      // Server generates PDF; go back to dashboard
+      if (typeof onGenerateInvoice === 'function') onGenerateInvoice();
     } catch (error) {
       console.error('Failed to save invoice:', error);
       alert('Failed to save invoice: ' + error.message);

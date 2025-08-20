@@ -6,7 +6,13 @@ const fs = require('fs');
 const Invoice = require('./invoice.model');
 
 const router = express.Router();
-const upload = multer({ dest: path.join(__dirname, 'uploads/') });
+// Ensure uploads directory exists under uploads/invoices
+const uploadsDir = path.join(__dirname, 'uploads', 'invoices');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+const upload = multer({ dest: uploadsDir });
 
 // Upload PDF for invoice
 router.post('/:id/upload-pdf', upload.single('pdf'), async (req, res) => {

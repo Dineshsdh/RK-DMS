@@ -26,7 +26,9 @@ const InvoiceSchema = new mongoose.Schema({
 
   pdfPath: String,
 
-  status: { type: String, enum: ['processing', 'completed'], default: 'processing' },
+  // Invoice status lifecycle
+  // Allowed values: pending, delivered, cancelled
+  status: { type: String, enum: ['pending', 'delivered', 'cancelled'], default: 'pending' },
 
 }, { timestamps: true });
 
