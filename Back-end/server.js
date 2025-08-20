@@ -10,6 +10,7 @@ const FormData = require('form-data');
 // Import route files
 const invoiceRoutes = require('./invoice.routes');
 const sweetRoutes = require('./sweets.routes');
+const pdfRoutes = require('./pdf.routes');
 
 dotenv.config();
 const app = express();
@@ -33,6 +34,7 @@ app.get('/api/health', (req, res) => {
 // Use route files
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/sweets', sweetRoutes);
+app.use('/api/invoices', pdfRoutes); // PDF upload/view/delete endpoints
 
 // WhatsApp Cloud API: send media and message
 // Requires env vars: WHATSAPP_TOKEN, WHATSAPP_FROM_NUMBER_ID

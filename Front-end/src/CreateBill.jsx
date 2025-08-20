@@ -172,8 +172,8 @@ const CreateBill = ({ onBack, onGenerateInvoice }) => {
       <button className="rk-back-btn" onClick={onBack}>&larr; Back</button>
       <div>
         <div className="container py-4">
-          <div className="d-flex justify-content-between align-items-center mb-4">
-            <h2 className="rk-section-title">Create Bill</h2>
+          <div className="d-flex justify-content-center align-items-center mb-4">
+            <h2 className="rk-section-title" style={{ textAlign: 'center', width: '100%' }}>Create Bill</h2>
           </div>
           
           {error && (

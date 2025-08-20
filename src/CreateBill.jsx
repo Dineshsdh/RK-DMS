@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { fetchSweets } from './api';
-import { createInvoice } from './api';
+import { createInvoice, uploadInvoicePDF, getInvoicePDF } from './api';
+import jsPDF from 'jspdf';
 // Bootstrap Trash SVG icon
 const TrashIcon = (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-trash" viewBox="0 0 16 16">
@@ -60,6 +61,13 @@ const CreateBill = ({ onBack, onGenerateInvoice }) => {
   let grandTotal = totalAmount - (Number(advanceAmount) || 0) - discountAmount;
   const roundedGrandTotal = Math.round(grandTotal);
 
+  // PDF state
+  const [pdfBlob, setPdfBlob] = useState(null);
+  const [invoiceId, setInvoiceId] = useState(null);
+  const [pdfUrl, setPdfUrl] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
+
   // Handler to update item fields
   const handleItemChange = (idx, field, value) => {
     setItems(prev =>
@@ -113,11 +121,53 @@ const CreateBill = ({ onBack, onGenerateInvoice }) => {
       grandTotal: grandTotal,
       roundedGrandTotal: roundedGrandTotal
     };
+    let createdInvoice;
     try {
-      await createInvoice(bill);
+      createdInvoice = await createInvoice(bill);
+      setInvoiceId(createdInvoice._id);
     } catch (err) {
       alert('Failed to save invoice to database: ' + err.message);
+      return;
     }
+    // Generate PDF using jsPDF
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text('RK Palkhova Invoice', 20, 20);
+    doc.setFontSize(12);
+    doc.text(`Customer: ${customerName}`, 20, 35);
+    doc.text(`Mobile: ${mobileNo}`, 20, 42);
+    doc.text(`Order No: ${orderNo}`, 20, 49);
+    doc.text(`Date: ${dateTime}`, 20, 56);
+    doc.text(`Employee: ${employee}`, 20, 63);
+    doc.text(`Delivery Date: ${deliveryDate ? deliveryDate.toLocaleDateString() : ''}`, 20, 70);
+    doc.text(`Delivery Day: ${deliveryDay}`, 20, 77);
+    doc.text('Items:', 20, 85);
+    let y = 92;
+    items.forEach((item, idx) => {
+      doc.text(`${idx + 1}. ${item.sweet} - Qty: ${item.quantity}, Rate: ₹${item.rate}, Total: ₹${item.total}`, 25, y);
+      y += 7;
+    });
+    y += 5;
+    doc.text(`Advance: ₹${advanceAmount}`, 20, y); y += 7;
+    doc.text(`Discount: ₹${discountAmount}`, 20, y); y += 7;
+    doc.text(`Total: ₹${totalAmount}`, 20, y); y += 7;
+    doc.text(`Grand Total: ₹${roundedGrandTotal < 0 ? 0 : roundedGrandTotal}`, 20, y);
+    // Get PDF blob
+    const pdfBlobObj = doc.output('blob');
+    setPdfBlob(pdfBlobObj);
+    setPdfUrl(URL.createObjectURL(pdfBlobObj));
+    // Upload PDF to backend
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('pdf', pdfBlobObj, 'invoice.pdf');
+      await uploadInvoicePDF(createdInvoice._id, formData);
+      setUploadSuccess(true);
+    } catch (err) {
+      alert('PDF upload failed: ' + err.message);
+      setUploadSuccess(false);
+    }
+    setUploading(false);
     if (typeof onGenerateInvoice === 'function') {
       onGenerateInvoice(bill);
     }
@@ -319,7 +369,7 @@ const CreateBill = ({ onBack, onGenerateInvoice }) => {
           </div>
         </div>
         {/* Generate PDF Button at bottom center */}
-        <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '2.5rem' }}>
+        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '2.5rem' }}>
           <button
             style={{
               background: '#111',
@@ -335,9 +385,41 @@ const CreateBill = ({ onBack, onGenerateInvoice }) => {
               marginBottom: '1.5rem',
             }}
             onClick={handleGeneratePDF}
+            disabled={uploading}
           >
-            Generate PDF
+            {uploading ? 'Uploading PDF...' : 'Generate & Save PDF'}
           </button>
+          {pdfBlob && (
+            <a
+              href={pdfUrl}
+              download={`invoice_${customerName || 'customer'}.pdf`}
+              style={{
+                marginTop: '1rem',
+                background: '#eab308',
+                color: '#111',
+                padding: '0.5rem 1.5rem',
+                borderRadius: '0.4rem',
+                fontWeight: 'bold',
+                textDecoration: 'none',
+                boxShadow: '0 2px 8px 0 #eab30844',
+              }}
+            >
+              Download PDF
+            </a>
+          )}
+          {uploadSuccess && invoiceId && (
+            <div style={{ marginTop: '1rem', color: '#16a34a', fontWeight: 'bold' }}>
+              PDF saved to dashboard! <br />
+              <a
+                href={`/api/invoices/${invoiceId}/pdf`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: '#2563eb', textDecoration: 'underline' }}
+              >
+                View PDF in Dashboard
+              </a>
+            </div>
+          )}
         </div>
       </div>
     </div>

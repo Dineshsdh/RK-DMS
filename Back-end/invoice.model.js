@@ -23,6 +23,7 @@ const InvoiceSchema = new mongoose.Schema({
   roundedGrandTotal: Number,
   deliveryDate: String,
   deliveryDay: String,
+  pdfPath: String,
 }, { timestamps: true });
 
 module.exports = mongoose.model('Invoice', InvoiceSchema);
