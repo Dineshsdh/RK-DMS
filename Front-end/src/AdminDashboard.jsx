@@ -4,6 +4,7 @@ import { fetchInvoices, fetchInvoicesByStatus, updateInvoice, deleteInvoice } fr
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './AdminDashboard.css';
 import rkLogo from './assets/Rk Palkhova Logo_page-0001.jpg';
+import Invoice from './Invoice'; // Import the Invoice component
 
 
 const menuTabs = [
@@ -167,373 +168,355 @@ const AdminDashboard = ({ onCreateBill, onLogout }) => {
       </div>
 
       {/* Tab content below menu, equal width to menu */}
-      <div style={{
-        width: '100%',
-        minHeight: '300px',
-        background: '#fff',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        boxSizing: 'border-box',
-        borderTop: '1px solid #eab308',
-        borderBottom: '1px solid #eab308',
-        marginBottom: '2rem',
-      }}>
-        {activeTab === 'all' && (
-          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div style={{ width: '100%', maxWidth: 900 }}>
-              <h4 style={{ color: '#b91c1c', margin: '1rem 0', textAlign: 'center' }}>All Invoices</h4>
-              {loading && <div style={{ textAlign: 'center' }}>Loading...</div>}
-              {error && <div style={{ color: 'red', textAlign: 'center' }}>{error}</div>}
-              {!loading && !error && (
-                <div style={{ maxHeight: 400, overflowY: 'auto' }}>
-                  <table className="table table-bordered table-striped" style={{ fontSize: '1rem', background: '#fff', margin: '0 auto' }}>
-                    <thead style={{ background: '#eab308', color: '#b91c1c' }}>
-                      <tr>
-                        <th>Order No</th>
-                        <th>Customer</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {invoices.length === 0 ? (
-                        <tr><td colSpan={4} style={{ textAlign: 'center' }}>No invoices found.</td></tr>
-                      ) : (
-                        invoices.map(inv => (
-                          <tr key={inv._id}>
-                            <td>{inv.orderNo}</td>
-                            <td>{inv.customerName}</td>
-                            <td style={{ textTransform: 'capitalize' }}>{inv.status || 'pending'}</td>
-                            <td>
-                              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                                <button
-                                  onClick={() => setPreviewInvoice(inv)}
-                                  className="btn btn-primary btn-sm"
-                                >View</button>
-                                <select
-                                  className="form-select form-select-sm"
-                                  value={inv.status || 'pending'}
-                                  onChange={async (e) => {
-                                    try {
-                                      setLoading(true);
-                                      await updateInvoice(inv._id, { status: e.target.value });
-                                      if (activeTab === 'all') {
-                                        const data = await fetchInvoices();
-                                        setInvoices(data.invoices || data);
-                                      } else {
-                                        const data = await fetchInvoicesByStatus(activeTab);
-                                        setInvoices(data.invoices || data);
-                                      }
-                                    } catch (err) {
-                                      alert(err.message);
-                                    } finally {
-                                      setLoading(false);
-                                    }
-                                  }}
-                                  style={{ width: 140 }}
-                                >
-                                  <option value="pending">Pending</option>
-                                  <option value="delivered">Delivered</option>
-                                  <option value="cancelled">Cancelled</option>
-                                </select>
-                                <button
-                                  className="btn btn-danger btn-sm"
-                                  onClick={async () => {
-                                    if (!confirm('Delete this invoice and its PDF?')) return;
-                                    try {
-                                      setLoading(true);
-                                      await deleteInvoice(inv._id);
-                                      if (activeTab === 'all') {
-                                        const data = await fetchInvoices();
-                                        setInvoices(data.invoices || data);
-                                      } else {
-                                        const data = await fetchInvoicesByStatus(activeTab);
-                                        setInvoices(data.invoices || data);
-                                      }
-                                    } catch (err) {
-                                      alert(err.message);
-                                    } finally {
-                                      setLoading(false);
-                                    }
-                                  }}
-                                >Delete</button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-        {activeTab === 'pending' && (
-          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div style={{ width: '100%', maxWidth: 900 }}>
-              <h4 style={{ color: '#b91c1c', margin: '1rem 0', textAlign: 'center' }}>Pending Invoices</h4>
-              {loading && <div style={{ textAlign: 'center' }}>Loading...</div>}
-              {error && <div style={{ color: 'red', textAlign: 'center' }}>{error}</div>}
-              {!loading && !error && (
-                <div style={{ maxHeight: 400, overflowY: 'auto' }}>
-                  <table className="table table-bordered table-striped" style={{ fontSize: '1rem', background: '#fff', margin: '0 auto' }}>
-                    <thead style={{ background: '#eab308', color: '#b91c1c' }}>
-                      <tr>
-                        <th>Order No</th>
-                        <th>Customer</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {invoices.length === 0 ? (
-                        <tr><td colSpan={4} style={{ textAlign: 'center' }}>No invoices found.</td></tr>
-                      ) : (
-                        invoices.map(inv => (
-                          <tr key={inv._id}>
-                            <td>{inv.orderNo}</td>
-                            <td>{inv.customerName}</td>
-                            <td style={{ textTransform: 'capitalize' }}>{inv.status || 'pending'}</td>
-                            <td>
-                              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                                <button
-                                  onClick={() => setPreviewInvoice(inv)}
-                                  className="btn btn-primary btn-sm"
-                                >View</button>
-                                <select
-                                  className="form-select form-select-sm"
-                                  value={inv.status || 'pending'}
-                                  onChange={async (e) => {
-                                    try {
-                                      setLoading(true);
-                                      await updateInvoice(inv._id, { status: e.target.value });
-                                      const data = await fetchInvoicesByStatus('pending');
-                                      setInvoices(data.invoices || data);
-                                    } catch (err) {
-                                      alert(err.message);
-                                    } finally {
-                                      setLoading(false);
-                                    }
-                                  }}
-                                  style={{ width: 140 }}
-                                >
-                                  <option value="pending">Pending</option>
-                                  <option value="delivered">Delivered</option>
-                                  <option value="cancelled">Cancelled</option>
-                                </select>
-                                <button
-                                  className="btn btn-danger btn-sm"
-                                  onClick={async () => {
-                                    if (!confirm('Delete this invoice and its PDF?')) return;
-                                    try {
-                                      setLoading(true);
-                                      await deleteInvoice(inv._id);
-                                      const data = await fetchInvoicesByStatus('pending');
-                                      setInvoices(data.invoices || data);
-                                    } catch (err) {
-                                      alert(err.message);
-                                    } finally {
-                                      setLoading(false);
-                                    }
-                                  }}
-                                >Delete</button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-        {activeTab === 'delivered' && (
-          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div style={{ width: '100%', maxWidth: 900 }}>
-              <h4 style={{ color: '#16a34a', margin: '1rem 0', textAlign: 'center' }}>Delivered Invoices</h4>
-              {loading && <div style={{ textAlign: 'center' }}>Loading...</div>}
-              {error && <div style={{ color: 'red', textAlign: 'center' }}>{error}</div>}
-              {!loading && !error && (
-                <div style={{ maxHeight: 400, overflowY: 'auto' }}>
-                  <table className="table table-bordered table-striped" style={{ fontSize: '1rem', background: '#fff', margin: '0 auto' }}>
-                    <thead style={{ background: '#eab308', color: '#b91c1c' }}>
-                      <tr>
-                        <th>Order No</th>
-                        <th>Customer</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {invoices.length === 0 ? (
-                        <tr><td colSpan={4} style={{ textAlign: 'center' }}>No invoices found.</td></tr>
-                      ) : (
-                        invoices.map(inv => (
-                          <tr key={inv._id}>
-                            <td>{inv.orderNo}</td>
-                            <td>{inv.customerName}</td>
-                            <td style={{ textTransform: 'capitalize' }}>{inv.status || 'pending'}</td>
-                            <td>
-                              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                                <button
-                                  onClick={() => setPreviewInvoice(inv)}
-                                  className="btn btn-primary btn-sm"
-                                >View</button>
-                                <select
-                                  className="form-select form-select-sm"
-                                  value={inv.status || 'pending'}
-                                  onChange={async (e) => {
-                                    try {
-                                      setLoading(true);
-                                      await updateInvoice(inv._id, { status: e.target.value });
-                                      const data = await fetchInvoicesByStatus('delivered');
-                                      setInvoices(data.invoices || data);
-                                    } catch (err) {
-                                      alert(err.message);
-                                    } finally {
-                                      setLoading(false);
-                                    }
-                                  }}
-                                  style={{ width: 140 }}
-                                >
-                                  <option value="pending">Pending</option>
-                                  <option value="delivered">Delivered</option>
-                                  <option value="cancelled">Cancelled</option>
-                                </select>
-                                <button
-                                  className="btn btn-danger btn-sm"
-                                  onClick={async () => {
-                                    if (!confirm('Delete this invoice and its PDF?')) return;
-                                    try {
-                                      setLoading(true);
-                                      await deleteInvoice(inv._id);
-                                      const data = await fetchInvoicesByStatus('delivered');
-                                      setInvoices(data.invoices || data);
-                                    } catch (err) {
-                                      alert(err.message);
-                                    } finally {
-                                      setLoading(false);
-                                    }
-                                  }}
-                                >Delete</button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-        {activeTab === 'cancelled' && (
-          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div style={{ width: '100%', maxWidth: 900 }}>
-              <h4 style={{ color: '#7c4700', margin: '1rem 0', textAlign: 'center' }}>Cancelled Invoices</h4>
-              {loading && <div style={{ textAlign: 'center' }}>Loading...</div>}
-              {error && <div style={{ color: 'red', textAlign: 'center' }}>{error}</div>}
-              {!loading && !error && (
-                <div style={{ maxHeight: 400, overflowY: 'auto' }}>
-                  <table className="table table-bordered table-striped" style={{ fontSize: '1rem', background: '#fff', margin: '0 auto' }}>
-                    <thead style={{ background: '#eab308', color: '#b91c1c' }}>
-                      <tr>
-                        <th>Order No</th>
-                        <th>Customer</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {invoices.length === 0 ? (
-                        <tr><td colSpan={4} style={{ textAlign: 'center' }}>No invoices found.</td></tr>
-                      ) : (
-                        invoices.map(inv => (
-                          <tr key={inv._id}>
-                            <td>{inv.orderNo}</td>
-                            <td>{inv.customerName}</td>
-                            <td style={{ textTransform: 'capitalize' }}>{inv.status || 'pending'}</td>
-                            <td>
-                              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                                <button
-                                  onClick={() => setPreviewInvoice(inv)}
-                                  className="btn btn-primary btn-sm"
-                                >View</button>
-                                <select
-                                  className="form-select form-select-sm"
-                                  value={inv.status || 'pending'}
-                                  onChange={async (e) => {
-                                    try {
-                                      setLoading(true);
-                                      await updateInvoice(inv._id, { status: e.target.value });
-                                      const data = await fetchInvoicesByStatus('cancelled');
-                                      setInvoices(data.invoices || data);
-                                    } catch (err) {
-                                      alert(err.message);
-                                    } finally {
-                                      setLoading(false);
-                                    }
-                                  }}
-                                  style={{ width: 140 }}
-                                >
-                                  <option value="pending">Pending</option>
-                                  <option value="delivered">Delivered</option>
-                                  <option value="cancelled">Cancelled</option>
-                                </select>
-                                <button
-                                  className="btn btn-danger btn-sm"
-                                  onClick={async () => {
-                                    if (!confirm('Delete this invoice and its PDF?')) return;
-                                    try {
-                                      setLoading(true);
-                                      await deleteInvoice(inv._id);
-                                      const data = await fetchInvoicesByStatus('cancelled');
-                                      setInvoices(data.invoices || data);
-                                    } catch (err) {
-                                      alert(err.message);
-                                    } finally {
-                                      setLoading(false);
-                                    }
-                                  }}
-                                >Delete</button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* PDF Preview Modal */}
-      {previewInvoice && (
+      {previewInvoice ? (
+        <Invoice billData={previewInvoice} onBack={() => setPreviewInvoice(null)} />
+      ) : (
         <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
+          width: '100%',
+          minHeight: '300px',
+          background: '#fff',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxSizing: 'border-box',
+          borderTop: '1px solid #eab308',
+          borderBottom: '1px solid #eab308',
+          marginBottom: '2rem',
         }}>
-          <div style={{ background: '#fff', borderRadius: 8, padding: 16, width: '820px', maxWidth: '95vw' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-              <h5 style={{ margin: 0 }}>Invoice Preview</h5>
-              <button className="btn btn-sm btn-secondary" onClick={() => setPreviewInvoice(null)}>Close</button>
+          {activeTab === 'all' && (
+            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <div style={{ width: '100%', maxWidth: 900 }}>
+                <h4 style={{ color: '#b91c1c', margin: '1rem 0', textAlign: 'center' }}>All Invoices</h4>
+                {loading && <div style={{ textAlign: 'center' }}>Loading...</div>}
+                {error && <div style={{ color: 'red', textAlign: 'center' }}>{error}</div>}
+                {!loading && !error && (
+                  <div style={{ maxHeight: 400, overflowY: 'auto' }}>
+                    <table className="table table-bordered table-striped" style={{ fontSize: '1rem', background: '#fff', margin: '0 auto' }}>
+                      <thead style={{ background: '#eab308', color: '#b91c1c' }}>
+                        <tr>
+                          <th>Order No</th>
+                          <th>Customer</th>
+                          <th>Status</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {invoices.length === 0 ? (
+                          <tr><td colSpan={4} style={{ textAlign: 'center' }}>No invoices found.</td></tr>
+                        ) : (
+                          invoices.map(inv => (
+                            <tr key={inv._id}>
+                              <td>{inv.orderNo}</td>
+                              <td>{inv.customerName}</td>
+                              <td style={{ textTransform: 'capitalize' }}>{inv.status || 'pending'}</td>
+                              <td>
+                                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                                  <button
+                                    onClick={() => setPreviewInvoice(inv)}
+                                    className="btn btn-primary btn-sm"
+                                  >View</button>
+                                  <select
+                                    className="form-select form-select-sm"
+                                    value={inv.status || 'pending'}
+                                    onChange={async (e) => {
+                                      try {
+                                        setLoading(true);
+                                        await updateInvoice(inv._id, { status: e.target.value });
+                                        if (activeTab === 'all') {
+                                          const data = await fetchInvoices();
+                                          setInvoices(data.invoices || data);
+                                        } else {
+                                          const data = await fetchInvoicesByStatus(activeTab);
+                                          setInvoices(data.invoices || data);
+                                        }
+                                      } catch (err) {
+                                        alert(err.message);
+                                      } finally {
+                                        setLoading(false);
+                                      }
+                                    }}
+                                    style={{ width: 140 }}
+                                  >
+                                    <option value="pending">Pending</option>
+                                    <option value="delivered">Delivered</option>
+                                    <option value="cancelled">Cancelled</option>
+                                  </select>
+                                  <button
+                                    className="btn btn-danger btn-sm"
+                                    onClick={async () => {
+                                      if (!confirm('Delete this invoice and its PDF?')) return;
+                                      try {
+                                        setLoading(true);
+                                        await deleteInvoice(inv._id);
+                                        if (activeTab === 'all') {
+                                          const data = await fetchInvoices();
+                                          setInvoices(data.invoices || data);
+                                        } else {
+                                          const data = await fetchInvoicesByStatus(activeTab);
+                                          setInvoices(data.invoices || data);
+                                        }
+                                      } catch (err) {
+                                        alert(err.message);
+                                      } finally {
+                                        setLoading(false);
+                                      }
+                                    }}
+                                  >Delete</button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
             </div>
-            <div style={{ width: '100%', height: '1150px', overflow: 'hidden', border: '1px solid #ddd', borderRadius: 4 }}>
-              <iframe
-                title="Invoice PDF"
-                src={`http://localhost:5000/api/invoices/${previewInvoice._id}/pdf`}
-                style={{ width: '100%', height: '100%', border: 'none', background: '#f5f5f5' }}
-              />
+          )}
+          {activeTab === 'pending' && (
+            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <div style={{ width: '100%', maxWidth: 900 }}>
+                <h4 style={{ color: '#b91c1c', margin: '1rem 0', textAlign: 'center' }}>Pending Invoices</h4>
+                {loading && <div style={{ textAlign: 'center' }}>Loading...</div>}
+                {error && <div style={{ color: 'red', textAlign: 'center' }}>{error}</div>}
+                {!loading && !error && (
+                  <div style={{ maxHeight: 400, overflowY: 'auto' }}>
+                    <table className="table table-bordered table-striped" style={{ fontSize: '1rem', background: '#fff', margin: '0 auto' }}>
+                      <thead style={{ background: '#eab308', color: '#b91c1c' }}>
+                        <tr>
+                          <th>Order No</th>
+                          <th>Customer</th>
+                          <th>Status</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {invoices.length === 0 ? (
+                          <tr><td colSpan={4} style={{ textAlign: 'center' }}>No invoices found.</td></tr>
+                        ) : (
+                          invoices.map(inv => (
+                            <tr key={inv._id}>
+                              <td>{inv.orderNo}</td>
+                              <td>{inv.customerName}</td>
+                              <td style={{ textTransform: 'capitalize' }}>{inv.status || 'pending'}</td>
+                              <td>
+                                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                                  <button
+                                    onClick={() => setPreviewInvoice(inv)}
+                                    className="btn btn-primary btn-sm"
+                                  >View</button>
+                                  <select
+                                    className="form-select form-select-sm"
+                                    value={inv.status || 'pending'}
+                                    onChange={async (e) => {
+                                      try {
+                                        setLoading(true);
+                                        await updateInvoice(inv._id, { status: e.target.value });
+                                        const data = await fetchInvoicesByStatus('pending');
+                                        setInvoices(data.invoices || data);
+                                      } catch (err) {
+                                        alert(err.message);
+                                      } finally {
+                                        setLoading(false);
+                                      }
+                                    }}
+                                    style={{ width: 140 }}
+                                  >
+                                    <option value="pending">Pending</option>
+                                    <option value="delivered">Delivered</option>
+                                    <option value="cancelled">Cancelled</option>
+                                  </select>
+                                  <button
+                                    className="btn btn-danger btn-sm"
+                                    onClick={async () => {
+                                      if (!confirm('Delete this invoice and its PDF?')) return;
+                                      try {
+                                        setLoading(true);
+                                        await deleteInvoice(inv._id);
+                                        const data = await fetchInvoicesByStatus('pending');
+                                        setInvoices(data.invoices || data);
+                                      } catch (err) {
+                                        alert(err.message);
+                                      } finally {
+                                        setLoading(false);
+                                      }
+                                    }}
+                                  >Delete</button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          )}
+          {activeTab === 'delivered' && (
+            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <div style={{ width: '100%', maxWidth: 900 }}>
+                <h4 style={{ color: '#16a34a', margin: '1rem 0', textAlign: 'center' }}>Delivered Invoices</h4>
+                {loading && <div style={{ textAlign: 'center' }}>Loading...</div>}
+                {error && <div style={{ color: 'red', textAlign: 'center' }}>{error}</div>}
+                {!loading && !error && (
+                  <div style={{ maxHeight: 400, overflowY: 'auto' }}>
+                    <table className="table table-bordered table-striped" style={{ fontSize: '1rem', background: '#fff', margin: '0 auto' }}>
+                      <thead style={{ background: '#eab308', color: '#b91c1c' }}>
+                        <tr>
+                          <th>Order No</th>
+                          <th>Customer</th>
+                          <th>Status</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {invoices.length === 0 ? (
+                          <tr><td colSpan={4} style={{ textAlign: 'center' }}>No invoices found.</td></tr>
+                        ) : (
+                          invoices.map(inv => (
+                            <tr key={inv._id}>
+                              <td>{inv.orderNo}</td>
+                              <td>{inv.customerName}</td>
+                              <td style={{ textTransform: 'capitalize' }}>{inv.status || 'pending'}</td>
+                              <td>
+                                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                                  <button
+                                    onClick={() => setPreviewInvoice(inv)}
+                                    className="btn btn-primary btn-sm"
+                                  >View</button>
+                                  <select
+                                    className="form-select form-select-sm"
+                                    value={inv.status || 'pending'}
+                                    onChange={async (e) => {
+                                      try {
+                                        setLoading(true);
+                                        await updateInvoice(inv._id, { status: e.target.value });
+                                        const data = await fetchInvoicesByStatus('delivered');
+                                        setInvoices(data.invoices || data);
+                                      } catch (err) {
+                                        alert(err.message);
+                                      } finally {
+                                        setLoading(false);
+                                      }
+                                    }}
+                                    style={{ width: 140 }}
+                                  >
+                                    <option value="pending">Pending</option>
+                                    <option value="delivered">Delivered</option>
+                                    <option value="cancelled">Cancelled</option>
+                                  </select>
+                                  <button
+                                    className="btn btn-danger btn-sm"
+                                    onClick={async () => {
+                                      if (!confirm('Delete this invoice and its PDF?')) return;
+                                      try {
+                                        setLoading(true);
+                                        await deleteInvoice(inv._id);
+                                        const data = await fetchInvoicesByStatus('delivered');
+                                        setInvoices(data.invoices || data);
+                                      } catch (err) {
+                                        alert(err.message);
+                                      } finally {
+                                        setLoading(false);
+                                      }
+                                    }}
+                                  >Delete</button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          {activeTab === 'cancelled' && (
+            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <div style={{ width: '100%', maxWidth: 900 }}>
+                <h4 style={{ color: '#7c4700', margin: '1rem 0', textAlign: 'center' }}>Cancelled Invoices</h4>
+                {loading && <div style={{ textAlign: 'center' }}>Loading...</div>}
+                {error && <div style={{ color: 'red', textAlign: 'center' }}>{error}</div>}
+                {!loading && !error && (
+                  <div style={{ maxHeight: 400, overflowY: 'auto' }}>
+                    <table className="table table-bordered table-striped" style={{ fontSize: '1rem', background: '#fff', margin: '0 auto' }}>
+                      <thead style={{ background: '#eab308', color: '#b91c1c' }}>
+                        <tr>
+                          <th>Order No</th>
+                          <th>Customer</th>
+                          <th>Status</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {invoices.length === 0 ? (
+                          <tr><td colSpan={4} style={{ textAlign: 'center' }}>No invoices found.</td></tr>
+                        ) : (
+                          invoices.map(inv => (
+                            <tr key={inv._id}>
+                              <td>{inv.orderNo}</td>
+                              <td>{inv.customerName}</td>
+                              <td style={{ textTransform: 'capitalize' }}>{inv.status || 'pending'}</td>
+                              <td>
+                                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                                  <button
+                                    onClick={() => setPreviewInvoice(inv)}
+                                    className="btn btn-primary btn-sm"
+                                  >View</button>
+                                  <select
+                                    className="form-select form-select-sm"
+                                    value={inv.status || 'pending'}
+                                    onChange={async (e) => {
+                                      try {
+                                        setLoading(true);
+                                        await updateInvoice(inv._id, { status: e.target.value });
+                                        const data = await fetchInvoicesByStatus('cancelled');
+                                        setInvoices(data.invoices || data);
+                                      } catch (err) {
+                                        alert(err.message);
+                                      } finally {
+                                        setLoading(false);
+                                      }
+                                    }}
+                                    style={{ width: 140 }}
+                                  >
+                                    <option value="pending">Pending</option>
+                                    <option value="delivered">Delivered</option>
+                                    <option value="cancelled">Cancelled</option>
+                                  </select>
+                                  <button
+                                    className="btn btn-danger btn-sm"
+                                    onClick={async () => {
+                                      if (!confirm('Delete this invoice and its PDF?')) return;
+                                      try {
+                                        setLoading(true);
+                                        await deleteInvoice(inv._id);
+                                        const data = await fetchInvoicesByStatus('cancelled');
+                                        setInvoices(data.invoices || data);
+                                      } catch (err) {
+                                        alert(err.message);
+                                      } finally {
+                                        setLoading(false);
+                                      }
+                                    }}
+                                  >Delete</button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

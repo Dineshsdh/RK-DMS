@@ -247,6 +247,35 @@ const Invoice = ({ billData, onBack }) => {
         >
           Send Invoice PDF to WhatsApp
         </button>
+        <button
+          style={{
+            background: '#0ea5e9',
+            color: '#fff',
+            fontWeight: 'bold',
+            border: 'none',
+            borderRadius: '0.5rem',
+            padding: '0.75rem 2.5rem',
+            fontSize: '1.1rem',
+            boxShadow: '0 2px 8px 0 #2228',
+            cursor: 'pointer',
+            transition: 'background 0.2s',
+            marginBottom: '1.5rem',
+          }}
+          onClick={async () => {
+            const pdfUrl = await generatePDF();
+            if (pdfUrl) {
+              const link = document.createElement('a');
+              link.href = pdfUrl;
+              link.download = `invoice_${orderNo || 'document'}.pdf`;
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              URL.revokeObjectURL(pdfUrl);
+            }
+          }}
+        >
+          Download Invoice PDF
+        </button>
       </div>
     </div>
   );
