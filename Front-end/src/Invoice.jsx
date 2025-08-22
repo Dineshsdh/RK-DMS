@@ -44,42 +44,6 @@ const Invoice = ({ billData, onBack }) => {
     return URL.createObjectURL(pdfBlob);
   };
 
-  // Send PDF via backend to WhatsApp Cloud API
-  const handleSendPDFWhatsApp = async () => {
-    const phone = '918489597443';
-    try {
-      const input = invoiceRef.current;
-      if (!input) {
-        alert('Invoice not ready');
-        return;
-      }
-      const canvas = await html2canvas(input, { scale: 2 });
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-      const pdfBlob = pdf.output('blob');
-
-      const formData = new FormData();
-      formData.append('to', phone);
-      formData.append('caption', 'RK PALKHOVA & SWEETS - Invoice');
-      formData.append('file', pdfBlob, 'invoice.pdf');
-
-      const resp = await fetch('http://localhost:5000/api/whatsapp/send-pdf', {
-        method: 'POST',
-        body: formData,
-      });
-      if (!resp.ok) {
-        const err = await resp.json().catch(() => ({}));
-        throw new Error(err.error || 'Failed to send WhatsApp message');
-      }
-      alert('Invoice sent to WhatsApp successfully');
-    } catch (e) {
-      console.error(e);
-      alert(`Failed to send invoice to WhatsApp: ${e.message}`);
-    }
-  };
   const getWhatsAppMessage = () => {
     let msg = `*RK PALKHOVA & SWEETS*%0A`;
     msg += `*INVOICE*%0A`;
@@ -160,16 +124,18 @@ const Invoice = ({ billData, onBack }) => {
             <div style={{ marginBottom: 4 }}><b>Customer Name:</b> {customerName}</div>
             <div><b>Mobile No:</b> {mobileNo}</div>
           </div>
+          {(deliveryDate || deliveryDay) && (
+            <div style={{ minWidth: 180, display: 'flex', flexDirection: 'column' }}>
+              <div style={{ marginBottom: 4 }}><b>Delivery Date:</b> {deliveryDate ? (typeof deliveryDate === 'string' ? deliveryDate : (deliveryDate.toLocaleDateString && deliveryDate.toLocaleDateString('en-CA'))) : ''}</div>
+              <div><b>Delivery Day:</b> {deliveryDay}</div>
+            </div>
+          )}
           <div style={{ minWidth: 180 }}>
             <div style={{ marginBottom: 4 }}><b>Order No:</b> {orderNo}</div>
             <div><b>Date & Time:</b> {dateTime}</div>
           </div>
           <div style={{ minWidth: 180 }}>
             <div><b>Employee:</b> {employee}</div>
-          </div>
-          <div style={{ minWidth: 180 }}>
-            <div><b>Delivery Date:</b> {deliveryDate ? (typeof deliveryDate === 'string' ? deliveryDate : (deliveryDate.toLocaleDateString && deliveryDate.toLocaleDateString('en-CA'))) : ''}</div>
-            <div><b>Delivery Day:</b> {deliveryDay}</div>
           </div>
         </div>
         {/* Table */}
@@ -228,25 +194,6 @@ const Invoice = ({ billData, onBack }) => {
         </div>
       </div>
       <div style={{ marginTop: '2.5rem', textAlign: 'center' }}>
-        <button
-          style={{
-            background: '#25D366',
-            color: '#fff',
-            fontWeight: 'bold',
-            border: 'none',
-            borderRadius: '0.5rem',
-            padding: '0.75rem 2.5rem',
-            fontSize: '1.1rem',
-            boxShadow: '0 2px 8px 0 #2228',
-            cursor: 'pointer',
-            transition: 'background 0.2s',
-            marginBottom: '1.5rem',
-            marginRight: '1rem',
-          }}
-          onClick={handleSendPDFWhatsApp}
-        >
-          Send Invoice PDF to WhatsApp
-        </button>
         <button
           style={{
             background: '#0ea5e9',
