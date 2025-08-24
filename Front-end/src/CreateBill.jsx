@@ -45,7 +45,7 @@ const CreateBill = ({ onBack, onGenerateInvoice }) => {
   const [deliveryDate, setDeliveryDate] = useState(null);
   const [deliveryDay, setDeliveryDay] = useState('');
   const [items, setItems] = useState([
-    { sweet: '', quantity: '', rate: '' }
+    { sweet: '', type: '', no: '',quantity: '', rate: '', total: '' }
   ]);
   const [advanceAmount, setAdvanceAmount] = useState(0);
   const [discount, setDiscount] = useState(0); // discount as amount
@@ -77,37 +77,33 @@ const CreateBill = ({ onBack, onGenerateInvoice }) => {
     setItems(prev =>
       prev.map((item, i) => {
         if (i !== idx) return item;
-        
+        let newItem = { ...item, [field]: value };
         // If sweet is changed, automatically set the rate
         if (field === 'sweet') {
           const selectedSweet = sweets.find(s => s.name === value);
-          return {
-            ...item,
-            sweet: value,
-            rate: selectedSweet ? selectedSweet.rate : item.rate,
-            total: item.quantity && selectedSweet 
-              ? item.quantity * selectedSweet.rate 
-              : (item.quantity && item.rate ? item.quantity * item.rate : item.total)
-          };
+          newItem.rate = selectedSweet ? selectedSweet.rate : item.rate;
         }
-        
-        // For other fields
-        return {
-          ...item,
-          [field]: value,
-          total:
-            field === 'quantity' || field === 'rate'
-              ? (field === 'quantity' ? value : item.quantity) *
-                (field === 'rate' ? value : item.rate)
-              : item.total
-        };
+        // If type or no changes, calculate quantity
+        if (field === 'type' || field === 'no') {
+          const typeVal = field === 'type' ? value : item.type;
+          const noVal = field === 'no' ? value : item.no;
+          const qty = (Number(typeVal) * Number(noVal)) / 1000;
+          newItem.quantity = isNaN(qty) ? '' : qty.toFixed(3);
+        }
+        // If rate or quantity changes, calculate total
+        if (field === 'rate' || field === 'quantity' || field === 'type' || field === 'no' || field === 'sweet') {
+          const qty = Number(newItem.quantity) || 0;
+          const rate = newItem.rate || 0;
+          newItem.total = qty * rate;
+        }
+        return newItem;
       })
     );
   };
 
   // Handler to add a new item row
   const handleAddItem = () => {
-    setItems([...items, { sweet: '', quantity: '', rate: '' }]);
+    setItems([...items, { sweet: '', type: '', no: '',quantity: '', rate: '', total: '' }]);
   };
 
   // Handler to delete an item row
@@ -135,6 +131,8 @@ const CreateBill = ({ onBack, onGenerateInvoice }) => {
       employee,
       items: items.filter(item => item.sweet && item.quantity).map(item => ({
         sweet: item.sweet,
+        type: item.type,
+        no: item.no,
         quantity: item.quantity,
         rate: item.rate,
         total: item.total
@@ -260,11 +258,11 @@ const CreateBill = ({ onBack, onGenerateInvoice }) => {
             <div className="row mb-4">
               <div className="col-md-3 mb-2">
                 <label className="rk-order-details-label">Advance Amount</label>
-                <input className="form-control" type="number" min="0" value={advanceAmount} onChange={e => setAdvanceAmount(e.target.value)} placeholder="Advance amount" />
+                <input className="form-control" type="number" value={advanceAmount} onChange={e => setAdvanceAmount(e.target.value)} placeholder="Advance amount" />
               </div>
               <div className="col-md-3 mb-2">
                 <label className="rk-order-details-label">Discount (Amount)</label>
-                <input className="form-control" type="number" min="0" value={discount} onChange={e => setDiscount(e.target.value)} placeholder="Discount amount" />
+                <input className="form-control" type="number" value={discount} onChange={e => setDiscount(e.target.value)} placeholder="Discount amount" />
               </div>
             </div>
             <div className="table-responsive">
@@ -272,7 +270,9 @@ const CreateBill = ({ onBack, onGenerateInvoice }) => {
                 <thead>
                   <tr>
                     <th>Product Name</th>
-                    <th>Quantity</th>
+                    <th>Quantity (g)</th>
+                    <th>NO's</th>
+                    <th>Total Quantity</th>
                     <th>Rate</th>
                     <th>Total Amount</th>
                     <th></th>
@@ -287,7 +287,7 @@ const CreateBill = ({ onBack, onGenerateInvoice }) => {
                           value={item.sweet} 
                           onChange={e => handleItemChange(idx, 'sweet', e.target.value)}
                         >
-                          <option value="">Select Sweet</option>
+                          <option value="">Select Product</option>
                           {sweets.map(sweet => (
                             <option key={sweet._id} value={sweet.name}>
                               {sweet.name} 
@@ -296,7 +296,13 @@ const CreateBill = ({ onBack, onGenerateInvoice }) => {
                         </select>
                       </td>
                       <td>
-                        <input className="form-control" type="number" min="0" value={item.quantity} onChange={e => handleItemChange(idx, 'quantity', Number(e.target.value))} placeholder="Qty" />
+                        <input className="form-control" type="number" min="0" value={item.type} onChange={e => handleItemChange(idx, 'type', Number(e.target.value))} placeholder="Quantity (g)" />
+                      </td>
+                      <td>
+                        <input className="form-control" type="number" min="0" value={item.no} onChange={e => handleItemChange(idx, 'no', Number(e.target.value))} placeholder="Nos" />
+                      </td>
+                      <td>
+                        <input className="form-control" type="number" min="0" value={item.quantity || ''} readOnly placeholder="totalQty" />
                       </td>
                       <td>
                         <input className="form-control" type="number" min="0" value={item.rate} onChange={e => handleItemChange(idx, 'rate', Number(e.target.value))} placeholder="Rate" />

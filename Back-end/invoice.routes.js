@@ -51,14 +51,16 @@ async function generateInvoicePdf(invoice) {
       // Items table header
       const tableTop = doc.y;
       const rowHeight = 20;
-      const columnPositions = [36, 220, 340, 430];
+      const columnPositions = [36, 150, 220, 300, 370, 450]; // Adjusted column positions for Type and No
       doc
         .fontSize(11)
         .fillColor('#b91c1c')
         .text('Sweet', columnPositions[0], tableTop)
-        .text('Quantity', columnPositions[1], tableTop)
-        .text('Rate', columnPositions[2], tableTop)
-        .text('Total', columnPositions[3], tableTop);
+        .text('Type', columnPositions[1], tableTop)
+        .text('No', columnPositions[2], tableTop)
+        .text('Quantity', columnPositions[3], tableTop)
+        .text('Rate', columnPositions[4], tableTop)
+        .text('Total', columnPositions[5], tableTop);
 
       doc.moveTo(36, tableTop + 15).lineTo(559, tableTop + 15).stroke('#eab308');
 
@@ -67,15 +69,19 @@ async function generateInvoicePdf(invoice) {
       let y = tableTop + 22;
       const items = (invoice.items || []).map(it => ({
         sweet: it.sweet || '',
+        type: it.type || '',
+        no: it.no || '',
         quantity: Number(it.quantity) || 0,
         rate: Number(it.rate) || 0,
         total: Number(it.total) || 0,
       }));
       items.forEach((it) => {
-        doc.text(it.sweet, columnPositions[0], y, { width: 170 });
-        doc.text(String(it.quantity), columnPositions[1], y);
-        doc.text(String(it.rate), columnPositions[2], y);
-        doc.text(String(it.total), columnPositions[3], y);
+        doc.text(it.sweet, columnPositions[0], y, { width: 100 });
+        doc.text(it.type, columnPositions[1], y, { width: 60 });
+        doc.text(it.no, columnPositions[2], y, { width: 60 });
+        doc.text(String(it.quantity), columnPositions[3], y);
+        doc.text(String(it.rate), columnPositions[4], y);
+        doc.text(String(it.total), columnPositions[5], y);
         y += rowHeight;
         if (y > 700) {
           doc.addPage();

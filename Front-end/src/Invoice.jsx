@@ -7,7 +7,7 @@ import './AdminDashboard.css';
 import './CreateBill.css';
 
 const Invoice = ({ billData, onBack }) => {
-  // billData should contain: customerName, mobileNo, orderNo, dateTime, employee, items (array)
+  // billData should contain: customerName, mobileNo, orderNo, dateTime, employee, items (array with sweet, quantity, rate, total, type, no)
   const {
     customerName = '',
     mobileNo = '',
@@ -16,7 +16,6 @@ const Invoice = ({ billData, onBack }) => {
     employee = '',
   items = [],
   advanceAmount = 0,
-  discount = 0,
   discountAmount = 0,
   totalAmount = 0,
   roundedGrandTotal = 0,
@@ -44,24 +43,7 @@ const Invoice = ({ billData, onBack }) => {
     return URL.createObjectURL(pdfBlob);
   };
 
-  const getWhatsAppMessage = () => {
-    let msg = `*RK PALKHOVA & SWEETS*%0A`;
-    msg += `*INVOICE*%0A`;
-    msg += `Customer Name: ${customerName}%0A`;
-    msg += `Mobile No: ${mobileNo}%0A`;
-    msg += `Order No: ${orderNo}%0A`;
-    msg += `Date & Time: ${dateTime}%0A`;
-    msg += `Employee: ${employee}%0A`;
-    msg += `%0A*Items*%0A`;
-    if (items && items.length > 0) {
-      items.forEach((item, idx) => {
-        msg += `${idx + 1}. ${item.sweet} | Qty: ${item.quantity} | Rate: ₹${item.rate} | Total: ₹${item.total}%0A`;
-      });
-    }
-    msg += `%0A*Grand Total: ₹${items.reduce((sum, item) => sum + (Number(item.total) || 0), 0)}*%0A`;
-    msg += `%0AThank you for your order!`;
-    return msg;
-  };
+ 
 
 
   return (
@@ -142,22 +124,26 @@ const Invoice = ({ billData, onBack }) => {
         <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '2.5rem', fontSize: '1.05rem' }}>
           <thead>
             <tr style={{ background: '#eab308', color: '#b91c1c' }}>
-              <th style={{ border: '1px solid #eab308', padding: '8px', textAlign: 'center', fontWeight: 700 }}>Sweet Name</th>
-              <th style={{ border: '1px solid #eab308', padding: '8px', textAlign: 'center', fontWeight: 700 }}>Quantity</th>
+              <th style={{ border: '1px solid #eab308', padding: '8px', textAlign: 'center', fontWeight: 700 }}>Product Name</th>
+              <th style={{ border: '1px solid #eab308', padding: '8px', textAlign: 'center', fontWeight: 700 }}>Quantity (g)</th>
+              <th style={{ border: '1px solid #eab308', padding: '8px', textAlign: 'center', fontWeight: 700 }}>NO's</th>
+              <th style={{ border: '1px solid #eab308', padding: '8px', textAlign: 'center', fontWeight: 700 }}>Total Quantity</th>
               <th style={{ border: '1px solid #eab308', padding: '8px', textAlign: 'center', fontWeight: 700 }}>Rate</th>
-              <th style={{ border: '1px solid #eab308', padding: '8px', textAlign: 'center', fontWeight: 700 }}>Total</th>
+              <th style={{ border: '1px solid #eab308', padding: '8px', textAlign: 'center', fontWeight: 700 }}>Total Amount</th>
             </tr>
           </thead>
           <tbody>
             {items && items.length > 0 ? items.map((item, idx) => (
               <tr key={idx}>
                 <td style={{ border: '1px solid #eab308', padding: '8px', textAlign: 'center' }}>{item.sweet}</td>
+                <td style={{ border: '1px solid #eab308', padding: '8px', textAlign: 'center' }}>{item.type}</td>
+                <td style={{ border: '1px solid #eab308', padding: '8px', textAlign: 'center' }}>{item.no}</td>
                 <td style={{ border: '1px solid #eab308', padding: '8px', textAlign: 'center' }}>{item.quantity}</td>
                 <td style={{ border: '1px solid #eab308', padding: '8px', textAlign: 'center' }}>{item.rate}</td>
                 <td style={{ border: '1px solid #eab308', padding: '8px', textAlign: 'center' }}>{item.total}</td>
               </tr>
             )) : (
-              <tr><td colSpan={4} style={{ textAlign: 'center', padding: '16px' }}>No items</td></tr>
+              <tr><td colSpan={6} style={{ textAlign: 'center', padding: '16px' }}>No items</td></tr>
             )}
           </tbody>
         </table>
