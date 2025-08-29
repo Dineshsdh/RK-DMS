@@ -1,9 +1,9 @@
 
-import { useState } from 'react';
-import Login from './Login';
-import AdminDashboard from './AdminDashboard';
-import CreateBill from './CreateBill';
+import { useState, lazy, Suspense } from 'react';
 
+const Login = lazy(() => import('./Login'));
+const AdminDashboard = lazy(() => import('./AdminDashboard'));
+const CreateBill = lazy(() => import('./CreateBill'));
 
 
 function App() {
@@ -37,7 +37,7 @@ function App() {
   };
 
   return (
-    <>
+    <Suspense fallback={<div>Loading...</div>}>
       {isAuthenticated ? (
         showCreateBill ? (
           <CreateBill onLogout={handleLogout} onBack={handleBackToDashboard} onGenerateInvoice={handleInvoiceCreated} />
@@ -47,7 +47,7 @@ function App() {
       ) : (
         <Login onLogin={handleLogin} />
       )}
-    </>
+    </Suspense>
   );
 }
 
