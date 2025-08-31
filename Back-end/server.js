@@ -14,14 +14,23 @@ dotenv.config();
 const app = express();
 const upload = multer({ storage: multer.memoryStorage() });
 
+// Parse CLIENT_URL (can be multiple, comma-separated)
+const allowedOrigins = process.env.CLIENT_URL
+  ? process.env.CLIENT_URL.split(',')
+  : ['http://localhost:5173'];
+
 // Middleware
 app.use(cors({
-  origin: [
-    'http://localhost:5173',         
-    'https://rk-dms.netlify.app'      
-  ],
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
+
 app.use(express.json());
 
 // Connect to MongoDB
@@ -35,7 +44,7 @@ app.get('/api/health', (req, res) => {
 // Use route files
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/sweets', sweetRoutes);
-app.use('/api/pdf', pdfRoutes); // Separate namespace for PDF endpoints
+app.use('/api/pdf', pdfRoutes);
 
 // Handle undefined routes (must be LAST)
 app.use((req, res) => {
