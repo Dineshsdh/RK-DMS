@@ -1,5 +1,5 @@
 // api.js - helper for backend API calls
-export const API_BASE_URL = 'https://rk-dms-1.onrender.com';
+export const API_BASE_URL = 'https://rk-dms-1.onrender.com/api';
 
 // Helper function for API requests
 const apiRequest = async (url, options = {}) => {

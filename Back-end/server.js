@@ -17,19 +17,13 @@ const upload = multer({ storage: multer.memoryStorage() });
 // Parse CLIENT_URL (can be multiple, comma-separated)
 const allowedOrigins = process.env.CLIENT_URL
   ? process.env.CLIENT_URL.split(',')
-  : ['http://localhost:5173'];
+  : [];
 
-// Middleware
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: allowedOrigins,
   credentials: true
 }));
+
 
 app.use(express.json());
 
@@ -47,7 +41,7 @@ app.use('/api/sweets', sweetRoutes);
 app.use('/api/pdf', pdfRoutes);
 
 // Handle undefined routes (must be LAST)
-app.use((req, res) => {
+app.use('/',(req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
