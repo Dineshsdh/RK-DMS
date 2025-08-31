@@ -16,7 +16,10 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 // Middleware
 app.use(cors({
-  origin: process.env.CLIENT_URL || '*', // Allow frontend domain in production
+  origin: [
+    'http://localhost:5173',         
+    'https://rk-dms.netlify.app'      
+  ],
   credentials: true
 }));
 app.use(express.json());
