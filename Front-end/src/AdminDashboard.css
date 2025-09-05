@@ -54,3 +54,122 @@
   color: #fffbe6;
 }
 /* PDF preview uses an iframe inside a custom modal container defined inline in JSX */
+
+/* Extra responsive styles for AdminDashboard on mobile */
+@media (max-width: 480px) {
+  .rk-dashboard-bg {
+    padding: 0 !important;
+    min-width: 0 !important;
+    width: 100vw !important;
+    overflow-x: hidden;
+  }
+  .rk-dashboard-card {
+    padding: 1rem 0.5rem !important;
+    margin: 0.5rem !important;
+    border-radius: 0.7rem !important;
+    box-shadow: 0 2px 8px 0 rgba(185, 28, 28, 0.10) !important;
+  }
+  .rk-section-title {
+    font-size: 1.1rem !important;
+    margin-bottom: 1rem !important;
+  }
+  .rk-bill-table {
+    font-size: 0.95rem !important;
+    display: block;
+    overflow-x: auto;
+    width: 100%;
+  }
+  .rk-bill-table th, .rk-bill-table td {
+    padding: 0.4rem !important;
+    min-width: 80px;
+  }
+  .rk-add-item-btn, .rk-logout-btn {
+    width: 100%;
+    padding: 0.7rem 0 !important;
+    font-size: 1rem !important;
+    margin: 0.5rem 0 !important;
+  }
+  /* Header adjustments */
+  h1 {
+    font-size: 1.3rem !important;
+    letter-spacing: 1px !important;
+  }
+  img {
+    height: 40px !important;
+    width: 40px !important;
+  }
+  /* Menu buttons */
+  button {
+    font-size: 1rem !important;
+    padding: 0.7rem 0.2rem !important;
+  }
+  /* Table container */
+  .table {
+    font-size: 0.95rem !important;
+    display: block;
+    overflow-x: auto;
+    width: 100%;
+  }
+  .table th, .table td {
+    padding: 0.4rem !important;
+    min-width: 80px;
+  }
+}
+
+/* Responsive mobile styles */
+@media (max-width: 768px) {
+  .rk-dashboard-bg {
+    padding: 0 !important;
+    min-width: 0 !important;
+    width: 100vw !important;
+    overflow-x: hidden;
+  }
+  .rk-dashboard-card {
+    padding: 1rem 0.5rem !important;
+    margin: 0.5rem !important;
+    border-radius: 0.7rem !important;
+    box-shadow: 0 2px 8px 0 rgba(185, 28, 28, 0.10) !important;
+  }
+  .rk-section-title {
+    font-size: 1.1rem !important;
+    margin-bottom: 1rem !important;
+  }
+  .rk-bill-table {
+    font-size: 0.95rem !important;
+    display: block;
+    overflow-x: auto;
+    width: 100%;
+  }
+  .rk-bill-table th, .rk-bill-table td {
+    padding: 0.4rem !important;
+    min-width: 80px;
+  }
+  .rk-add-item-btn, .rk-logout-btn {
+    width: 100%;
+    padding: 0.7rem 0 !important;
+    font-size: 1rem !important;
+    margin: 0.5rem 0 !important;
+  }
+  h1 {
+    font-size: 1.3rem !important;
+    letter-spacing: 1px !important;
+  }
+  img {
+    height: 40px !important;
+    width: 40px !important;
+  }
+  button {
+    font-size: 1rem !important;
+    padding: 0.7rem 0.2rem !important;
+  }
+  .table {
+    font-size: 0.95rem !important;
+    display: block;
+    overflow-x: auto;
+    width: 100%;
+  }
+  .table th, .table td {
+    padding: 0.4rem !important;
+    min-width: 80px;
+  }
+}

@@ -3,7 +3,7 @@ import React, { useRef } from 'react';
 // These imports will work after you run: npm install jspdf html2canvas
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import './AdminDashboard.css';
+import './Invoice.css'; // Import the new Invoice.css
 import './CreateBill.css';
 
 const Invoice = ({ billData, onBack }) => {
@@ -31,7 +31,7 @@ const Invoice = ({ billData, onBack }) => {
     const input = invoiceRef.current;
     if (!input) return null;
     // Use html2canvas to render the invoice as an image
-    const canvas = await html2canvas(input, { scale: 2 });
+    const canvas = await html2canvas(input, { scale: 1 });
     const imgData = canvas.toDataURL('image/png');
     const pdf = new jsPDF('p', 'mm', 'a4');
     const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -47,153 +47,88 @@ const Invoice = ({ billData, onBack }) => {
 
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div className="invoice-wrapper">
       {/* Back Button */}
       <button
         onClick={onBack}
-        style={{
-          position: 'absolute',
-          top: 24,
-          left: 24,
-          background: '#111',
-          color: '#fff',
-          fontWeight: 'bold',
-          border: 'none',
-          borderRadius: '0.5rem',
-          padding: '0.5rem 1.5rem',
-          fontSize: '1rem',
-          boxShadow: '0 2px 8px 0 #2228',
-          cursor: 'pointer',
-          zIndex: 10,
-        }}
+        className="rk-back-btn-invoice"
       >
         &larr; Back
       </button>
       <div
         ref={invoiceRef}
-        style={{
-          width: '210mm',
-          minHeight: '297mm',
-          margin: 'auto',
-          background: '#fff',
-          boxShadow: '0 0 10px #ccc',
-          padding: '32px 40px 32px 40px',
-          fontFamily: 'Arial, sans-serif',
-          color: '#222',
-          position: 'relative',
-          borderRadius: '8px',
-          boxSizing: 'border-box',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'flex-start',
-        }}
+        className="invoice-container"
       >
         {/* Header */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 8 }}>
-          <h2 style={{ color: '#b91c1c', marginBottom: 0, letterSpacing: 2 }}>RK PALKHOVA & SWEETS</h2>
-          <h4 style={{ color: '#eab308', marginTop: 0, marginBottom: '1.2rem', letterSpacing: 1 }}>INVOICE</h4>
+        <div className="invoice-header">
+          <h2 className="invoice-title">RK PALKHOVA & SWEETS</h2>
+          <h4 className="invoice-subtitle">INVOICE</h4>
         </div>
         {/* Info Row */}
-
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          marginBottom: '1.5rem',
-          gap: 24,
-        }}>
-          <div style={{ minWidth: 180 }}>
-            <div style={{ marginBottom: 4 }}><b>Customer Name:</b> {customerName}</div>
-            <div><b>Mobile No:</b> {mobileNo}</div>
+        <div className="invoice-info-row">
+          <div className="invoice-info-col">
+            <div className="invoice-info-item"><b>Customer Name:</b> {customerName}</div>
+            <div className="invoice-info-item"><b>Mobile No:</b> {mobileNo}</div>
           </div>
           {(deliveryDate || deliveryDay) && (
-            <div style={{ minWidth: 180, display: 'flex', flexDirection: 'column' }}>
-              <div style={{ marginBottom: 4 }}><b>Delivery Date:</b> {deliveryDate ? (typeof deliveryDate === 'string' ? deliveryDate : (deliveryDate.toLocaleDateString && deliveryDate.toLocaleDateString('en-CA'))) : ''}</div>
-              <div><b>Delivery Day:</b> {deliveryDay}</div>
+            <div className="invoice-info-col">
+              <div className="invoice-info-item"><b>Delivery Date:</b> {deliveryDate ? (typeof deliveryDate === 'string' ? deliveryDate : (deliveryDate.toLocaleDateString && deliveryDate.toLocaleDateString('en-CA'))) : ''}</div>
+              <div className="invoice-info-item"><b>Delivery Day:</b> {deliveryDay}</div>
             </div>
           )}
-          <div style={{ minWidth: 180 }}>
-            <div style={{ marginBottom: 4 }}><b>Order No:</b> {orderNo}</div>
-            <div><b>Date & Time:</b> {dateTime}</div>
+          <div className="invoice-info-col">
+            <div className="invoice-info-item"><b>Order No:</b> {orderNo}</div>
+            <div className="invoice-info-item"><b>Date & Time:</b> {dateTime}</div>
           </div>
-          <div style={{ minWidth: 180 }}>
-            <div><b>Employee:</b> {employee}</div>
+          <div className="invoice-info-col">
+            <div className="invoice-info-item"><b>Employee:</b> {employee}</div>
           </div>
         </div>
         {/* Table */}
-        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '2.5rem', fontSize: '1.05rem' }}>
+        <table className="invoice-table">
           <thead>
-            <tr style={{ background: '#eab308', color: '#b91c1c' }}>
-              <th style={{ border: '1px solid #eab308', padding: '8px', textAlign: 'center', fontWeight: 700 }}>Product Name</th>
-              <th style={{ border: '1px solid #eab308', padding: '8px', textAlign: 'center', fontWeight: 700 }}>Quantity (g)</th>
-              <th style={{ border: '1px solid #eab308', padding: '8px', textAlign: 'center', fontWeight: 700 }}>NO's</th>
-              <th style={{ border: '1px solid #eab308', padding: '8px', textAlign: 'center', fontWeight: 700 }}>Total Quantity</th>
-              <th style={{ border: '1px solid #eab308', padding: '8px', textAlign: 'center', fontWeight: 700 }}>Rate</th>
-              <th style={{ border: '1px solid #eab308', padding: '8px', textAlign: 'center', fontWeight: 700 }}>Total Amount</th>
+            <tr>
+              <th>Product Name</th>
+              <th>Quantity (g)</th>
+              <th>NO's</th>
+              <th>Total Quantity</th>
+              <th>Rate</th>
+              <th>Total Amount</th>
             </tr>
           </thead>
           <tbody>
             {items && items.length > 0 ? items.map((item, idx) => (
               <tr key={idx}>
-                <td style={{ border: '1px solid #eab308', padding: '8px', textAlign: 'center' }}>{item.sweet}</td>
-                <td style={{ border: '1px solid #eab308', padding: '8px', textAlign: 'center' }}>{item.type}</td>
-                <td style={{ border: '1px solid #eab308', padding: '8px', textAlign: 'center' }}>{item.no}</td>
-                <td style={{ border: '1px solid #eab308', padding: '8px', textAlign: 'center' }}>{item.quantity}</td>
-                <td style={{ border: '1px solid #eab308', padding: '8px', textAlign: 'center' }}>{item.rate}</td>
-                <td style={{ border: '1px solid #eab308', padding: '8px', textAlign: 'center' }}>{item.total}</td>
+                <td>{item.sweet}</td>
+                <td>{item.type}</td>
+                <td>{item.no}</td>
+                <td>{item.quantity}</td>
+                <td>{item.rate}</td>
+                <td>{item.total}</td>
               </tr>
             )) : (
-              <tr><td colSpan={6} style={{ textAlign: 'center', padding: '16px' }}>No items</td></tr>
+              <tr><td colSpan={6}>No items</td></tr>
             )}
           </tbody>
         </table>
         {/* Totals Section */}
-        <div style={{
-          alignSelf: 'flex-end',
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gridTemplateRows: 'repeat(4, 1fr)',
-          gap: '0.5rem',
-          background: '#fffbe6',
-          borderRadius: '1rem',
-          boxShadow: '0 2px 8px 0 #eab30844',
-          border: '2px solid #eab308',
-          padding: '1.5rem',
-          fontWeight: 600,
-          fontSize: '1.1rem',
-          color: '#b91c1c',
-          minWidth: '260px',
-          maxWidth: '350px',
-          margin: '0 0 0 auto',
-        }}>
+        <div className="invoice-totals">
           <div>Total Amount</div>
           <div style={{ textAlign: 'right' }}>₹{totalAmount}</div>
           <div>Advance Amount</div>
           <div style={{ textAlign: 'right' }}>₹{advanceAmount}</div>
           <div>Discount</div>
           <div style={{ textAlign: 'right' }}>₹{discountAmount.toFixed(2)}</div>
-          <div style={{ fontWeight: 700, color: '#16a34a' }}>Grand Total (Rounded)</div>
-          <div style={{ textAlign: 'right', fontWeight: 700, color: '#16a34a' }}>₹{roundedGrandTotal < 0 ? 0 : roundedGrandTotal}</div>
+          <div className="invoice-grand-total">Grand Total (Rounded)</div>
+          <div style={{ textAlign: 'right' }} className="invoice-grand-total">₹{roundedGrandTotal < 0 ? 0 : roundedGrandTotal}</div>
         </div>
-        <div style={{ marginTop: '2.5rem', textAlign: 'center', color: '#888', fontSize: '0.95rem', width: '100%' }}>
+        <div className="invoice-thank-you">
           Thank you for your order!
         </div>
       </div>
-      <div style={{ marginTop: '2.5rem', textAlign: 'center' }}>
+      <div className="invoice-download-btn-container">
         <button
-          style={{
-            background: '#0ea5e9',
-            color: '#fff',
-            fontWeight: 'bold',
-            border: 'none',
-            borderRadius: '0.5rem',
-            padding: '0.75rem 2.5rem',
-            fontSize: '1.1rem',
-            boxShadow: '0 2px 8px 0 #2228',
-            cursor: 'pointer',
-            transition: 'background 0.2s',
-            marginBottom: '1.5rem',
-          }}
+          className="invoice-download-btn"
           onClick={async () => {
             const pdfUrl = await generatePDF();
             if (pdfUrl) {

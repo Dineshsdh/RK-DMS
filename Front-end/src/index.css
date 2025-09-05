@@ -66,3 +66,49 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* Responsive mobile styles */
+@media (max-width: 600px) {
+  body {
+    flex-direction: column;
+    padding: 0;
+    min-width: 0;
+  }
+  h1 {
+    font-size: 2em;
+  }
+  .rk-dashboard-card, .rk-login-card {
+    padding: 1rem 0.5rem !important;
+    margin: 0.5rem !important;
+    border-radius: 0.7rem !important;
+  }
+  .rk-section-title {
+    font-size: 1.2rem !important;
+  }
+  .rk-bill-table, .table {
+    font-size: 0.95rem !important;
+    display: block;
+    overflow-x: auto;
+    width: 100%;
+  }
+  .rk-bill-table th, .rk-bill-table td, .table th, .table td {
+    padding: 0.4rem !important;
+    min-width: 80px;
+  }
+  .rk-add-item-btn, .rk-logout-btn, .rk-back-btn {
+    width: 100%;
+    padding: 0.7rem 0 !important;
+    font-size: 1rem !important;
+    margin: 0.5rem 0 !important;
+  }
+  .container, .row, .col-md-2, .col-md-3, .col-md-6 {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  input, select, .form-control {
+    font-size: 1rem !important;
+    padding: 0.4rem 0.6rem !important;
+  }
+}

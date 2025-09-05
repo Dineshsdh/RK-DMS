@@ -1,4 +1,9 @@
-.rk-back-btn {
+.rk-back-btn:hover {
+  background: #222;
+  color: #fff;
+}
+
+.rk-back-btn-invoice {
   position: fixed;
   top: 1.5rem;
   left: 2.5rem;
@@ -14,7 +19,62 @@
   transition: background 0.2s;
   z-index: 1002;
 }
-.rk-back-btn:hover {
+
+.rk-back-btn-invoice:hover {
   background: #222;
   color: #fff;
+}
+
+/* Responsive mobile styles */
+@media (max-width: 600px) {
+  .rk-back-btn-invoice {
+    width: 100%;
+    left: 0 !important;
+    top: 0.5rem !important;
+    font-size: 1rem !important;
+    padding: 0.7rem 0 !important;
+    border-radius: 0.7rem !important;
+    margin: 0.5rem 0 !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .create-bill-container {
+    padding: 1rem;
+  }
+
+  .rk-bill-form .row > * {
+    padding-right: calc(var(--bs-gutter-x) * .2);
+    padding-left: calc(var(--bs-gutter-x) * .2);
+  }
+
+  .rk-bill-form .form-label {
+    font-size: 0.9rem;
+  }
+
+  .rk-bill-form .form-control,
+  .rk-bill-form .form-select {
+    font-size: 0.9rem;
+    padding: 0.375rem 0.75rem;
+  }
+
+  .rk-add-item-btn, .rk-generate-invoice-btn {
+    width: 100%;
+    margin-top: 1rem;
+  }
+
+  .table-responsive-sm {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table-responsive-sm > .table {
+    margin-bottom: 0;
+  }
+
+  .table-responsive-sm > .table > :not(caption) > * > * {
+    padding: 0.5rem 0.5rem;
+  }
 }

@@ -35,6 +35,23 @@
   border: 2.5px solid #eab308;
   z-index: 1;
 }
+
+@media (max-width: 768px) {
+  .rk-login-card {
+    width: 90%;
+    padding: 1.5rem;
+  }
+
+  .rk-login-bg img {
+    width: 90vw;
+    min-width: unset;
+  }
+
+  .rk-logo {
+    width: 60px;
+    height: 60px;
+  }
+}
 .rk-login-btn {
   background: linear-gradient(90deg, #b91c1c 0%, #eab308 100%);
   border: none;
