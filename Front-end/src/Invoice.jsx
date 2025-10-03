@@ -152,7 +152,7 @@ export const Invoice = ({ billData, onBack }) => {
   const discountAmount = typeof billData?.discountAmount === 'number' ? billData.discountAmount : Number(billData?.discountAmount) || 0;
   const totalAmount = typeof billData?.totalAmount === 'number' ? billData.totalAmount : Number(billData?.totalAmount) || 0;
   // Accept both packageAmount and packageHandlingAmount for robustness
-  const packageHandlingAmount = typeof billData?.packageHandlingAmount === 'number' ? billData.packageHandlingAmount : (typeof billData?.packageHandlingAmount === 'number' ? billData.packageHandlingAmount : Number(billData?.packageHandlingAmount) || Number(billData?.packageHandlingAmount) || 0);
+  const packageHandlingAmount = Number(billData?.packageHandlingAmount || billData?.packageAmount || 0);
   const deliveryDate = billData?.deliveryDate || '';
   // Accept both string and Date for deliveryTime
   let deliveryTime = billData?.deliveryTime || '';
