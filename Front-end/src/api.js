@@ -1,5 +1,5 @@
 // api.js - helper for backend API calls
-export const API_BASE_URL = 'https://rk-dms-1.onrender.com/api';
+export const API_BASE_URL = (import.meta?.env?.VITE_API_BASE_URL) || 'http://localhost:5000/api';
 
 // Helper function for API requests
 const apiRequest = async (url, options = {}) => {
@@ -23,8 +23,13 @@ const apiRequest = async (url, options = {}) => {
 export const checkHealth = () => apiRequest('/health');
 
 // Invoice API functions
-export const fetchInvoices = (page = 1, limit = 10) => 
-  apiRequest(`/invoices?page=${page}&limit=${limit}`);
+export const fetchInvoices = async (page = 1, limit = 10) => {
+  const data = await apiRequest(`/invoices?page=${page}&limit=${limit}`);
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data.invoices)) return data.invoices;
+  if (Array.isArray(data.data)) return data.data;
+  return [];
+};
 
 export const fetchInvoiceById = (id) => 
   apiRequest(`/invoices/${id}`);
@@ -53,8 +58,13 @@ export const fetchInvoicesByDateRange = (startDate, endDate) =>
   apiRequest(`/invoices/date-range/${startDate}/${endDate}`);
 
 // New: Fetch invoices by status
-export const fetchInvoicesByStatus = (status, page = 1, limit = 10) =>
-  apiRequest(`/invoices/status/${encodeURIComponent(status)}?page=${page}&limit=${limit}`);
+export const fetchInvoicesByStatus = async (status) => {
+  const data = await apiRequest(`/invoices/status/${status}`);
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data.invoices)) return data.invoices;
+  if (Array.isArray(data.data)) return data.data;
+  return [];
+};
 
 // Sweet API functions
 export const fetchSweets = () => 

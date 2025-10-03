@@ -1,7 +1,8 @@
 // db.js - MongoDB connection setup for invoice storage
 const mongoose = require('mongoose');
 
-const DB_URL = process.env.MONGODB_URL || 'mongodb+srv://dineshsdh05:admin123@rk-dms.vcmnhif.mongodb.net/';
+// Default to local MongoDB for development; override with MONGODB_URL in production
+const DB_URL = process.env.MONGODB_URL || 'mongodb://127.0.0.1:27017/rk-dms';
 
 const connectDB = async () => {
   try {
@@ -9,7 +10,7 @@ const connectDB = async () => {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    console.log(`MongoDB connected successfully to ${DB_URL}`);
+    console.log(`MongoDB connected successfully`);
   } catch (err) {
     console.error('MongoDB connection error:', err.message);
     process.exit(1);

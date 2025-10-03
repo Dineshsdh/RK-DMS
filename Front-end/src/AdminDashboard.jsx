@@ -84,7 +84,7 @@ const AdminDashboard = ({ onCreateBill, onLogout }) => {
             fontSize: '2.2rem',
             margin: 0,
             textAlign: 'center',
-          }}>RK PALKHOVA & SWEETS</h1>
+          }}>RK SWEETS & BAKERY </h1>
         </div>
         <button
           style={{

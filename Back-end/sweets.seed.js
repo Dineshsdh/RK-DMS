@@ -5,192 +5,184 @@ const connectDB = require('./db');
 
 const sweets = [
   {
-    "name": "PISTA BURFY",
-    "rate": 500
+    "name": "CASHEW KATLI",
+    "rate": 1100
   },
   {
-    "name": "CHOCOLATE ROLL",
-    "rate": 500
-  },
-  {
-    "name": "MOTHI LADDU",
-    "rate": 400
-  },
-  {
-    "name": "MILK BURFY",
-    "rate": 500
-  },
-  {
-    "name": "MILKCAKE",
-    "rate": 400
-  },
-  {
-    "name": "BADAM SOANPPADI",
-    "rate": 600
-  },
-  {
-    "name": "BOMBAY HALWA",
-    "rate": 600
-  },
-  {
-    "name": "MINI JANGIRI",
-    "rate": 300
-  },
-  {
-    "name": "SADA LADDU",
-    "rate": 300
-  },
-  {
-    "name": "MINI BADUSHA",
-    "rate": 320
-  },
-  {
-    "name": "SADA MYSOREPAK",
-    "rate": 380
-  },
-  {
-    "name": "POMO HALWA",
-    "rate": 600
-  },
-  {
-    "name": "SPL MYSOREPAK",
-    "rate": 600
-  },
-  {
-    "name": "RK SPL LADDU",
-    "rate": 600
-  },
-  {
-    "name": "BOOST BURFY",
-    "rate": 600
-  },
-  {
-    "name": "SPL KHOVA PEDA",
-    "rate": 500
-  },
-  {
-    "name": "MUNDHIRI CAKE",
-    "rate": 900
-  },
-  {
-    "name": "DATES LADDU",
-    "rate": 700
-  },
-  {
-    "name": "CASHEW MIXTURE",
-    "rate": 480
-  },
-  {
-    "name": "KAJU FLOWER",
-    "rate": 1200
-  },
-  {
-    "name": "NUTS BURFY",
-    "rate": 1200
-  },
-  {
-    "name": "NUTS MIXTURE",
-    "rate": 780
-  },
-  {
-    "name": "AVUL MIXTURE",
-    "rate": 320
-  },
-  {
-    "name": "DHAL MIXTURE",
-    "rate": 360
-  },
-  {
-    "name": "KAJU BISCUIT",
-    "rate": 1200
-  },
-  {
-    "name": "KAJU KATLI",
-    "rate": 1000
-  },
-  {
-    "name": "BADAM LADDU",
-    "rate": 1200
-  },
-  {
-    "name": "DATES ROLL",
-    "rate": 700
-  },
-  {
-    "name": "CASHEW HALWA",
-    "rate": 700
-  },
-  {
-    "name": "DRY FRUIT CHIKKI",
+    "name": "SPECIAL MYSOREPAK",
     "rate": 800
   },
   {
-    "name": "CASHEW SOANPAPDI",
+    "name": "GHEE MYSOREPAK",
+    "rate": 740
+  },
+  {
+    "name": "MILK MYSOREPAK",
+    "rate": 740
+  },
+  {
+    "name": "MOTI LADDU",
+    "rate": 740
+  },
+  {
+    "name": "SPECIAL LADDU",
+    "rate": 740
+  },
+  {
+    "name": "KAJU PISTA ROLL",
+    "rate": 1100
+  },
+  {
+    "name": "KAJU STRAWBERRY",
+    "rate": 1100
+  },
+  {
+    "name": "KAJU APPLE",
+    "rate": 1100
+  },
+  {
+    "name": "KAJU GUJIYA",
+    "rate": 1100
+  },
+  {
+    "name": "KAJU SAMOSA",
+    "rate": 1100
+  },
+  {
+    "name": "KAJU ANJEER ROLL",
+    "rate": 1100
+  },
+  {
+    "name": "KAJU KHARJUR ROLL",
+    "rate": 1100
+  },
+  {
+    "name": "KAJU CHOCO BITE",
+    "rate": 1100
+  },
+  {
+    "name": "KAJU MELON BITE",
+    "rate": 1100
+  },
+  {
+    "name": "KAJU BLACKCURRANT BITE",
+    "rate": 1100
+  },
+  {
+    "name": "KAJU PINEAPPLE BITE",
+    "rate": 1100
+  },
+  {
+    "name": "KAJU ORANGE BITE",
+    "rate": 1100
+  },
+  {
+    "name": "KAJU BUTTERSCOTCH BITE",
+    "rate": 1100
+  },
+  {
+    "name": "ASSORTED SWEETS",
+    "rate": 760
+  },
+  {
+    "name": "DRY FRUIT HALWA",
+    "rate": 1000
+  },
+  {
+    "name": "SPECIAL HALWA",
+    "rate": 760
+  },
+  {
+    "name": "KARUPATTI HALWA",
     "rate": 800
   },
   {
-    "name": "PISTA ROLL",
-    "rate": 1000
-  },
-  {
-    "name": "GRAND FUSION LADDU",
-    "rate": 1400
-  },
-  {
-    "name": "KAJU ROLL",
+    "name": "BADAM HALWA",
     "rate": 1200
   },
   {
-    "name": "ROSE KAJU KATLI",
-    "rate": 1200
+    "name": "DATES HALWA",
+    "rate": 800
   },
   {
-    "name": "CHCOLATE BITES",
-    "rate": 1200
+    "name": "PINEAPPLE HALWA",
+    "rate": 760
   },
   {
-    "name": "MAWA BITES",
-    "rate": 1200
+    "name": "MILK HALWA",
+    "rate": 760
   },
   {
-    "name": "MANGO BITES",
-    "rate": 1200
+    "name": "CHOCOLATE HALWA",
+    "rate": 760
   },
   {
-    "name": "ORANGE BITES",
-    "rate": 1200
+    "name": "HORLICKS BURFI",
+    "rate": 760
   },
   {
-    "name": "ECONOMY BOX",
-    "rate": 440
+    "name": "BOOST BURFI",
+    "rate": 760
   },
   {
-    "name": "SPL BOX",
-    "rate": 680
+    "name": "GULKAND BURFI",
+    "rate": 760
   },
   {
-    "name": "VIP BOX",
-    "rate": 1200
+    "name": "DRY FRUIT BURFI",
+    "rate": 760
   },
   {
-    "name": "VIP GRAND",
-    "rate": 1000
+    "name": "COCONUT BURFI",
+    "rate": 760
   },
   {
-    "name": "PREMIUM BOX",
+    "name": "BADAM BURFI",
+    "rate": 1100
+  },
+  {
+    "name": "FIG & HONEY BURFI",
+    "rate": 800
+  },
+  {
+    "name": "CHOCO CASHEW BURFI",
+    "rate": 800
+  },
+  {
+    "name": "DATES & NUTS BURFI",
+    "rate": 800
+  },
+  {
+    "name": "KARUPPATTI KOVA",
+    "rate": 800
+  },
+  {
+    "name": "GULKAND KOVA",
+    "rate": 800
+  },
+  {
+    "name": "SPECIAL KOVA",
+    "rate": 800
+  },
+  {
+    "name": "GHEE BADUSHA",
+    "rate": 740
+  },
+  {
+    "name": "GHEE JILEBI",
+    "rate": 740
+  },
+  {
+    "name": "CHANDRAKALA",
+    "rate": 740
+  },
+  {
+    "name": "SURYAKALA",
+    "rate": 740
+  },
+  {
+    "name": "ADRASAM (5 Pcs)",
     "rate": 100
-  },
-  {
-    "name": "PREMIUM LITE BOX",
-    "rate": 800
-  },
-  {
-    "name": "PACKAGING CHARGE",
-    "rate": 50
-  },
-  {
-    "name": "LUXURY BOX",
-    "rate": 1400
   }
 ];
 

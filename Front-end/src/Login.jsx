@@ -12,7 +12,7 @@ const Login = ({ onLogin }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     // Simple hardcoded authentication
-    if (username === 'admin' && password === 'admin123') {
+    if (username === 'admin' && password === 'admin') {
       onLogin();
     } else {
       setError('Invalid credentials');
@@ -21,7 +21,6 @@ const Login = ({ onLogin }) => {
 
   return (
     <div className="rk-login-root min-vh-100 d-flex align-items-center justify-content-center position-relative" style={{ minHeight: '100vh' }}>
-  {/* Background logo removed as per request */}
   <div className="rk-login-card card p-4 shadow position-relative" style={{ width: 480, height: 480, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '2.5rem' }}>
         <img src={rkLogo} alt="RK Logo" className="rk-logo" />
         <h3 className="mb-3 text-center" style={{ color: '#b91c1c', fontWeight: 700, letterSpacing: 1 }}>Admin Login</h3>
