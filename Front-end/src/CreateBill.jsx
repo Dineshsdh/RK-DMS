@@ -116,7 +116,7 @@ const CreateBill = ({ onBack, onGenerateInvoice }) => {
       items: items.filter(item => item.sweet && item.quantity),
       advanceAmount: Number(advanceAmount) || 0,
       discountAmount: discountAmount,
-      packageAmount: packageHandlingAmount, // Explicitly using packageHandlingAmount
+      packageHandlingAmount: packageHandlingAmount, // Fixed: using correct key name
       totalAmount: totalAmount,
       deliveryDate: deliveryDate ? deliveryDate.toISOString().split('T')[0] : '',
       deliveryTime: formattedDeliveryTime
