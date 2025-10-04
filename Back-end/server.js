@@ -18,7 +18,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 // Middleware
 // CORS: allow configurable origins (comma-separated). Default to local dev and wildcard.
-const allowedOriginsEnv = process.env.CORS_ORIGIN || 'http://localhost:5173,*';
+const allowedOriginsEnv = process.env.CORS_ORIGIN || 'https://rk-dms.netlify.app';
 const allowedOrigins = allowedOriginsEnv.split(',').map((o) => o.trim());
 app.use(cors({
   origin: (origin, callback) => {
