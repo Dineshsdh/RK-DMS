@@ -197,10 +197,6 @@ const sweets = [
     "rate": 1200
   },
   {
-    "name": "MANGO KAJU KATHILI",
-    "rate": 1200
-  },
-  {
     "name": "CLASSIC BOX",
     "rate": 460
   },
