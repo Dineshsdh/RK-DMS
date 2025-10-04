@@ -1,5 +1,5 @@
 // api.js - helper for backend API calls
-export const API_BASE_URL = (import.meta?.env?.VITE_API_BASE_URL) || 'http://localhost:5000/api';
+export const API_BASE_URL = (import.meta?.env?.VITE_API_BASE_URL) || 'https://rk-dms-1.onrender.com';
 
 // Helper function for API requests
 const apiRequest = async (url, options = {}) => {
