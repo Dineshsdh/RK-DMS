@@ -1,150 +1,176 @@
-/* Logout button hover effect */
-.rk-logout-btn:hover {
-  background: #b91c1c !important;
-  color: #fff !important;
-}
+/* Base Styles */
 .rk-dashboard-bg {
   min-height: 100vh;
-  width: 100vw;
+  width: 100%;
   background: linear-gradient(135deg, #eab308 0%, #b91c1c 60%, #7c4700 100%);
-  padding: 0;
+}
+
+/* Header Styles */
+.rk-dashboard-header {
+  width: 100%;
+  background: linear-gradient(90deg, #eab308 0%, #b91c1c 100%);
+  box-shadow: 0 2px 8px 0 #eab30844;
+  min-height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Key for desktop layout */
+  padding: 1rem 2.5rem;
+  box-sizing: border-box;
+}
+.rk-header-title {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+.rk-header-title img {
+  height: 60px;
+  width: 60px;
+  border-radius: 50%;
+  background: #fffbe6;
+  box-shadow: 0 2px 8px 0 #eab30844;
+}
+.rk-header-title h1 {
+  color: #fff;
+  font-weight: 800;
+  letter-spacing: 2px;
+  font-size: 2.2rem;
+  margin: 0;
+  text-align: center;
+}
+.rk-create-bill-btn {
+  background: linear-gradient(90deg, #00ff62ff 0%, #eab308 100%);
+  color: #fff;
+}
+.rk-logout-btn {
+  background: #fff;
+  color: #b91c1c;
+}
+.rk-logout-btn:hover {
+  background: #f1f1f1 !important;
+}
+.rk-dashboard-header button {
+  font-weight: bold;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1.5rem;
+  font-size: 1rem;
+  box-shadow: 0 2px 8px 0 #00000033;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.rk-dashboard-header button:hover {
+  transform: scale(1.05);
+}
+
+/* Menu Tabs Styles */
+.rk-menu-tabs {
+  width: 100%;
+  display: flex;
+  background: #fffbe6;
+  box-shadow: 0 2px 8px 0 #eab30822;
+}
+.rk-menu-tabs button {
+  flex: 1;
+  padding: 1.1rem 0;
+  background: transparent;
+  color: #7c4700;
+  border: none;
+  border-bottom: 4px solid transparent;
+  font-weight: bold;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  outline: none;
+}
+.rk-menu-tabs button.active {
+  background: #eab308;
+  color: #b91c1c;
+  border-bottom-color: #b91c1c;
+}
+
+/* Main Content Styles */
+.rk-tab-content {
+  width: 100%;
+  padding: 1rem;
+  box-sizing: border-box;
 }
 .rk-dashboard-card {
-  background: linear-gradient(120deg, #fffbe6 60%, #f7e0b2 100%);
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: #fffbe6;
   border-radius: 1.5rem;
-  box-shadow: 0 8px 32px 0 rgba(185, 28, 28, 0.15);
   border: 2.5px solid #eab308;
-  margin-top: 2rem;
-  margin-bottom: 2rem;
   padding: 2rem 2.5rem;
 }
 .rk-section-title {
   color: #b91c1c;
   font-weight: 700;
-  letter-spacing: 1px;
   margin-bottom: 1.5rem;
 }
-.rk-order-details-label {
-  color: #7c4700;
-  font-weight: 600;
+.btn-group-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
-.rk-bill-table th {
-  background: #eab308;
-  color: #b91c1c;
-  font-weight: 700;
-}
-.rk-bill-table td {
-  background: #fffbe6;
-  color: #7c4700;
-  font-weight: 500;
-}
-.rk-add-item-btn {
-  background: linear-gradient(90deg, #b91c1c 0%, #eab308 100%);
-  color: #fff;
-  font-weight: bold;
-  border: none;
-  border-radius: 0.5rem;
-  margin-top: 1.5rem;
-  padding: 0.75rem 2.5rem;
-  box-shadow: 0 2px 8px 0 #eab30844;
-  transition: background 0.2s;
-}
-.rk-add-item-btn:hover {
-  background: linear-gradient(90deg, #eab308 0%, #b91c1c 100%);
-  color: #fffbe6;
-}
-/* PDF preview uses an iframe inside a custom modal container defined inline in JSX */
 
-/* Extra responsive styles for AdminDashboard on mobile */
-@media (max-width: 480px) {
-  .rk-dashboard-bg {
-    padding: 0 !important;
-    min-width: 0 !important;
-    width: 100vw !important;
-    overflow-x: hidden;
+
+/* --- MOBILE RESPONSIVENESS --- */
+@media (max-width: 768px) {
+  .rk-dashboard-header {
+    padding: 1rem !important;
   }
-  .rk-dashboard-card {
-    padding: 1rem 0.5rem !important;
-    margin: 0.5rem !important;
-    border-radius: 0.7rem !important;
-    box-shadow: 0 2px 8px 0 rgba(185, 28, 28, 0.10) !important;
+  .rk-header-title h1 {
+    font-size: 1.1rem !important; /* Smaller title */
+    letter-spacing: 0;
   }
-  .rk-section-title {
-    font-size: 1.1rem !important;
-    margin-bottom: 1rem !important;
-  }
-  .rk-bill-table {
-    font-size: 0.95rem !important;
-    display: block;
-    overflow-x: auto;
-    width: 100%;
-  }
-  .rk-bill-table th, .rk-bill-table td {
-    padding: 0.4rem !important;
-    min-width: 80px;
-  }
-  .rk-add-item-btn, .rk-logout-btn {
-    width: 100%;
-    padding: 0.7rem 0 !important;
-    font-size: 1rem !important;
-    margin: 0.5rem 0 !important;
-  }
-  /* Header adjustments */
-  h1 {
-    font-size: 1.3rem !important;
-    letter-spacing: 1px !important;
-  }
-  img {
+  .rk-header-title img {
     height: 40px !important;
     width: 40px !important;
   }
-  /* Menu buttons */
-  button {
-    font-size: 1rem !important;
-    padding: 0.7rem 0.2rem !important;
-  }
-  /* Table container */
-  .table {
-    font-size: 0.95rem !important;
-    display: block;
-    overflow-x: auto;
-    width: 100%;
-  }
-  .table th, .table td {
-    padding: 0.4rem !important;
-    min-width: 80px;
-  }
-}
 
-/* Responsive mobile styles */
-@media (max-width: 480px) {
-  .rk-dashboard-bg {
-    padding: 0 !important;
-    min-width: 0 !important;
-    width: 100vw !important;
+  /*
+    This is the key fix: It resets the header buttons to a normal size
+    and prevents them from becoming "lengthy".
+  */
+  .rk-dashboard-header button {
+    width: auto !important;
+    padding: 0.5rem 0.8rem !important;
+    font-size: 0.8rem !important;
   }
-  .rk-dashboard-card {
-    padding: 1rem 0.5rem !important;
-    margin: 0.5rem !important;
-    border-radius: 0.7rem !important;
-  }
-  .rk-section-title {
-    font-size: 1.2rem !important;
-  }
-  .rk-bill-table {
-    font-size: 0.95rem !important;
-    display: block;
+  
+  /* Make menu scrollable on mobile */
+  .rk-menu-tabs {
+    justify-content: flex-start;
     overflow-x: auto;
-    width: 100%;
+    white-space: nowrap;
   }
-  .rk-bill-table th, .rk-bill-table td {
-    padding: 0.4rem !important;
-    min-width: 80px;
+  .rk-menu-tabs button {
+    flex: 0 0 auto !important;
+    padding: 1rem !important;
   }
-  .rk-add-item-btn, .rk-logout-btn {
-    width: 100%;
-    padding: 0.7rem 0 !important;
-    font-size: 1rem !important;
-    margin: 0.5rem 0 !important;
+  
+  .rk-tab-content {
+    padding: 0.5rem;
+  }
+  
+  .rk-dashboard-card {
+    padding: 1rem !important;
+  }
+
+  /* Make table scrollable */
+  .table-responsive-container {
+    overflow-x: auto;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+  }
+  .table-responsive-container table {
+    min-width: 700px; /* Force table to be wide */
+    margin: 0;
+  }
+  .btn-group-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
   }
 }

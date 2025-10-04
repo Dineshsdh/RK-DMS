@@ -6,7 +6,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './AdminDashboard.css';
 import './CreateBill.css';
 
-// Bootstrap Trash SVG icon
 const TrashIcon = (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-trash" viewBox="0 0 16 16">
     <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
@@ -37,7 +36,7 @@ const CreateBill = ({ onBack, onGenerateInvoice }) => {
   const [items, setItems] = useState([{ sweet: '', type: '', no: '', quantity: '', rate: '', total: '' }]);
   const [advanceAmount, setAdvanceAmount] = useState(0);
   const [discount, setDiscount] = useState(0);
-  const [packageAmount, setPackageAmount] = useState(0);
+  const [packageHandlingAmount, setPackageHandlingAmount] = useState(0);
 
   useEffect(() => {
     setLoading(true);
@@ -52,8 +51,9 @@ const CreateBill = ({ onBack, onGenerateInvoice }) => {
 
   const totalAmount = items.reduce((sum, item) => sum + (Number(item.total) || 0), 0);
   const discountAmount = Number(discount) || 0;
-  const packageHandlingAmount = Number(packageAmount) || 0;
-  let grandTotal = totalAmount + packageHandlingAmount - (Number(advanceAmount) || 0) - discountAmount;
+  const numericPackageHandlingAmount = Number(packageHandlingAmount) || 0;
+  
+  let grandTotal = totalAmount + numericPackageHandlingAmount - (Number(advanceAmount) || 0) - discountAmount;
   const roundedGrandTotal = Math.round(grandTotal);
 
   const handleItemChange = (idx, field, value) => {
@@ -97,7 +97,6 @@ const CreateBill = ({ onBack, onGenerateInvoice }) => {
       return;
     }
     
-    // Format deliveryTime for submission as 12-hour string
     let formattedDeliveryTime = '';
     if (deliveryTime instanceof Date) {
       let hours = deliveryTime.getHours();
@@ -116,11 +115,14 @@ const CreateBill = ({ onBack, onGenerateInvoice }) => {
       items: items.filter(item => item.sweet && item.quantity),
       advanceAmount: Number(advanceAmount) || 0,
       discountAmount: discountAmount,
-      packageAmount: packageHandlingAmount, // Explicitly using packageHandlingAmount
+      packageHandlingAmount: numericPackageHandlingAmount,
       totalAmount: totalAmount,
       deliveryDate: deliveryDate ? deliveryDate.toISOString().split('T')[0] : '',
       deliveryTime: formattedDeliveryTime
     };
+
+    // DEBUG LOG #2: Check the final data object before it's sent.
+    console.log('✅ Final Invoice Data to be Sent:', invoiceData);
     
     try {
       setLoading(true);
@@ -143,7 +145,8 @@ const CreateBill = ({ onBack, onGenerateInvoice }) => {
         {loading && <div className="alert alert-info">Loading...</div>}
         <div className="rk-dashboard-card">
           <h4 className="rk-section-title">Order Details</h4>
-          <div className="row mb-4">
+          {/* ... Order Details fields ... */}
+           <div className="row mb-4">
             <div className="col-md-2 mb-2">
               <label className="rk-order-details-label">Customer Name</label>
               <input className="form-control" type="text" placeholder="Enter name" value={customerName} onChange={e => setCustomerName(e.target.value)} />
@@ -211,14 +214,20 @@ const CreateBill = ({ onBack, onGenerateInvoice }) => {
               <input 
                 className="form-control" 
                 type="number" 
-                value={packageAmount} 
-                onChange={e => setPackageAmount(e.target.value)} 
+                value={packageHandlingAmount} 
+                onChange={e => {
+                  const value = e.target.value;
+                  // DEBUG LOG #1: Check if the input change is detected and the value is correct.
+                  console.log('📦 Package Handling Input Changed:', value);
+                  setPackageHandlingAmount(value);
+                }} 
                 placeholder="Package handling amount" 
               />
             </div>
           </div>
           <div className="table-responsive">
-            <table className="table rk-bill-table">
+            {/* ... Table ... */}
+             <table className="table rk-bill-table">
               <thead>
                 <tr>
                   <th>Product Name</th><th>Quantity (g)</th><th>NO's</th><th>Total Quantity (Kg)</th><th>Rate</th><th>Total Amount</th><th>Action</th>
@@ -247,7 +256,8 @@ const CreateBill = ({ onBack, onGenerateInvoice }) => {
           <div className="text-center"><button className="rk-add-item-btn" onClick={handleAddItem}>Add Item</button></div>
           
           <div className="row justify-content-center mt-4 mb-2">
-            <div className="col-md-6">
+             {/* ... Summary Box ... */}
+              <div className="col-md-6">
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: '1fr 1fr',
@@ -269,7 +279,7 @@ const CreateBill = ({ onBack, onGenerateInvoice }) => {
                 <div style={{ textAlign: 'right' }}>₹{totalAmount.toFixed(2)}</div>
                 
                 <div>Package Handling</div>
-                <div style={{ textAlign: 'right' }}>₹{packageHandlingAmount.toFixed(2)}</div>
+                <div style={{ textAlign: 'right' }}>₹{numericPackageHandlingAmount.toFixed(2)}</div>
                 
                 <div>Discount</div>
                 <div style={{ textAlign: 'right' }}>₹{discountAmount.toFixed(2)}</div>

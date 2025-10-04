@@ -16,6 +16,8 @@
   justify-content: center;
   position: relative;
   background: linear-gradient(135deg, #eab308 0%, #b91c1c 60%, #7c4700 100%);
+  padding: 1rem;
+  box-sizing: border-box;
 }
 .rk-login-bg img {
   position: absolute;
@@ -34,6 +36,8 @@
   box-shadow: 0 8px 32px 0 rgba(185, 28, 28, 0.15);
   border: 2.5px solid #eab308;
   z-index: 1;
+  width: 100%;
+  max-width: 450px;
 }
 .rk-login-btn {
   background: linear-gradient(90deg, #b91c1c 0%, #eab308 100%);
@@ -58,4 +62,12 @@
   box-shadow: 0 2px 8px 0 #eab30844;
   background: #fffbe6;
   border: 2.5px solid #b91c1c;
+}
+
+/* --- ADDED: Mobile Responsiveness --- */
+@media (max-width: 768px) {
+  .rk-login-card {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
 }

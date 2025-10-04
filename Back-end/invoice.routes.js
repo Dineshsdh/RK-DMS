@@ -9,7 +9,8 @@ const path = require('path');
 async function generateInvoicePdf(invoice) {
   return new Promise((resolve, reject) => {
     try {
-      const uploadsDir = path.join(__dirname, 'uploads', 'invoices');
+      // Corrected path to be relative to the project's root `uploads` directory
+      const uploadsDir = path.join(__dirname, '..', 'uploads', 'invoices');
       if (!fs.existsSync(uploadsDir)) {
         fs.mkdirSync(uploadsDir, { recursive: true });
       }
@@ -24,6 +25,7 @@ async function generateInvoicePdf(invoice) {
       doc
         .fontSize(20)
         .fillColor('#b91c1c')
+        .font('Helvetica-Bold')
         .text('RK PALKHOVA & SWEETS', { align: 'center' })
         .moveDown(0.2);
       doc
@@ -33,7 +35,7 @@ async function generateInvoicePdf(invoice) {
         .moveDown(1);
 
       // Customer and order info
-      doc.fillColor('black').fontSize(11);
+      doc.font('Helvetica').fillColor('black').fontSize(11);
       const leftX = doc.x;
       const topY = doc.y;
       const colWidth = 250;
@@ -41,82 +43,66 @@ async function generateInvoicePdf(invoice) {
       doc.text(`Mobile No: ${invoice.mobileNo || ''}`, leftX, doc.y);
       const rightX = leftX + colWidth + 20;
       doc.text(`Order No: ${invoice.orderNo || ''}`, rightX, topY, { width: colWidth });
-      doc.text(`Date & Time: ${invoice.dateTime || ''}`, rightX, doc.y);
-      const rightX2 = rightX + colWidth + 20;
-      doc.text(`Employee: ${invoice.employee || ''}`, rightX2, topY, { width: colWidth });
-      doc.text(`Delivery Date: ${invoice.deliveryDate || ''}`, rightX2, doc.y);
-      doc.text(`Delivery Day: ${invoice.deliveryDay || ''}`, rightX2, doc.y);
+      doc.text(`Date & Time: ${invoice.dateTime ? new Date(invoice.dateTime).toLocaleString('en-IN') : ''}`, rightX, doc.y);
+      doc.text(`Delivery Date: ${invoice.deliveryDate || 'N/A'}`, rightX, doc.y + 15);
+      doc.text(`Delivery Time: ${invoice.deliveryTime || 'N/A'}`);
       doc.moveDown(1);
 
       // Items table header
       const tableTop = doc.y;
-      const rowHeight = 20;
-      const columnPositions = [36, 150, 220, 300, 370, 450]; // Adjusted column positions for Type and No
-      doc
-        .fontSize(11)
-        .fillColor('#b91c1c')
+      const columnPositions = [36, 150, 220, 300, 370, 450];
+      doc.fontSize(11).fillColor('#b91c1c').font('Helvetica-Bold')
         .text('Sweet', columnPositions[0], tableTop)
         .text('Type', columnPositions[1], tableTop)
         .text('No', columnPositions[2], tableTop)
         .text('Quantity', columnPositions[3], tableTop)
         .text('Rate', columnPositions[4], tableTop)
         .text('Total', columnPositions[5], tableTop);
-
       doc.moveTo(36, tableTop + 15).lineTo(559, tableTop + 15).stroke('#eab308');
 
       // Items rows
-      doc.fillColor('black');
+      doc.font('Helvetica').fillColor('black');
       let y = tableTop + 22;
-      const items = (invoice.items || []).map(it => ({
-        sweet: it.sweet || '',
-        type: it.type || '',
-        no: it.no || '',
-        quantity: Number(it.quantity) || 0,
-        rate: Number(it.rate) || 0,
-        total: Number(it.total) || 0,
-      }));
-      items.forEach((it) => {
-        doc.text(it.sweet, columnPositions[0], y, { width: 100 });
-        doc.text(it.type, columnPositions[1], y, { width: 60 });
-        doc.text(it.no, columnPositions[2], y, { width: 60 });
-        doc.text(String(it.quantity), columnPositions[3], y);
-        doc.text(String(it.rate), columnPositions[4], y);
-        doc.text(String(it.total), columnPositions[5], y);
-        y += rowHeight;
-        if (y > 700) {
-          doc.addPage();
-          y = 60;
-        }
+      (invoice.items || []).forEach((it) => {
+        doc.text(it.sweet || '', columnPositions[0], y, { width: 100 });
+        doc.text(it.type || '', columnPositions[1], y, { width: 60 });
+        doc.text(it.no || '', columnPositions[2], y, { width: 60 });
+        doc.text(String(Number(it.quantity) || 0), columnPositions[3], y);
+        doc.text(String(Number(it.rate) || 0), columnPositions[4], y);
+        doc.text(String(Number(it.total) || 0), columnPositions[5], y);
+        y += 20;
+        if (y > 700) { doc.addPage(); y = 60; }
       });
 
       // Totals box
       const totalAmount = Number(invoice.totalAmount || 0);
       const advanceAmount = Number(invoice.advanceAmount || 0);
       const discountAmount = Number(invoice.discountAmount || 0);
-      const roundedGrandTotal = Number(invoice.roundedGrandTotal || 0);
+      const packageHandlingAmount = Number(invoice.packageHandlingAmount || 0);
+      const roundedGrandTotal = Math.round(totalAmount + packageHandlingAmount - advanceAmount - discountAmount);
 
       const boxX = 320;
-      const boxY = y + 20;
-      doc.roundedRect(boxX, boxY, 240, 100, 8).stroke('#eab308');
-      doc
-        .fontSize(11)
-        .text('Total Amount', boxX + 10, boxY + 10)
-        .text(`₹${totalAmount}`, boxX + 150, boxY + 10, { width: 80, align: 'right' })
-        .text('Advance Amount', boxX + 10, boxY + 30)
-        .text(`₹${advanceAmount}`, boxX + 150, boxY + 30, { width: 80, align: 'right' })
-        .text('Discount', boxX + 10, boxY + 50)
-        .text(`₹${discountAmount.toFixed ? discountAmount.toFixed(2) : discountAmount}`, boxX + 150, boxY + 50, { width: 80, align: 'right' })
-        .fillColor('#16a34a').fontSize(12)
-        .text('Grand Total (Rounded)', boxX + 10, boxY + 70)
-        .text(`₹${roundedGrandTotal}`, boxX + 150, boxY + 70, { width: 80, align: 'right' })
-        .fillColor('black');
+      const boxY = y < 600 ? y + 20 : 600;
+      doc.roundedRect(boxX, boxY, 240, 120, 8).stroke('#eab308');
 
-      // Footer
-      doc.moveDown(2);
-      doc.fontSize(10).fillColor('#666').text('Thank you for your order!', { align: 'center' });
+      let currentY = boxY + 10;
+      const writeTotalRow = (label, value) => {
+        doc.text(label, boxX + 10, currentY)
+           .text(`₹${value.toFixed(2)}`, boxX + 150, currentY, { width: 80, align: 'right' });
+        currentY += 20;
+      };
+
+      doc.fontSize(11).font('Helvetica').fillColor('black');
+      writeTotalRow('Total Amount', totalAmount);
+      writeTotalRow('Package Handling', packageHandlingAmount);
+      writeTotalRow('Discount', discountAmount);
+      writeTotalRow('Advance Amount', advanceAmount);
+      
+      doc.fillColor('#16a34a').fontSize(12).font('Helvetica-Bold');
+      doc.text('Grand Total', boxX + 10, currentY + 5)
+         .text(`₹${roundedGrandTotal.toFixed(2)}`, boxX + 150, currentY + 5, { width: 80, align: 'right' });
 
       doc.end();
-
       stream.on('finish', () => resolve(filePath));
       stream.on('error', (err) => reject(err));
     } catch (err) {
@@ -124,6 +110,7 @@ async function generateInvoicePdf(invoice) {
     }
   });
 }
+
 const router = express.Router();
 
 // Get invoices by status (with optional pagination)
@@ -198,34 +185,22 @@ router.post('/', async (req, res) => {
   try {
     const invoiceData = req.body;
     
-    // Validation
     if (!invoiceData.customerName) {
       return res.status(400).json({ error: 'Customer name is required' });
     }
-    
     if (!invoiceData.items || invoiceData.items.length === 0) {
       return res.status(400).json({ error: 'At least one item is required' });
     }
 
-    // Generate order number if not provided
-    if (!invoiceData.orderNo) {
-      const count = await Invoice.countDocuments();
-      invoiceData.orderNo = `ORD${String(count + 1).padStart(4, '0')}`;
-    }
-
-    if (!invoiceData.status) {
-      invoiceData.status = 'pending';
-    }
     const invoice = new Invoice(invoiceData);
     await invoice.save();
 
-    // Generate PDF and store path
     try {
       const pdfPath = await generateInvoicePdf(invoice);
-      invoice.pdfPath = pdfPath;
+      invoice.pdfPath = path.basename(pdfPath); // Store only the filename
       await invoice.save();
     } catch (pdfErr) {
-      // If PDF generation fails, keep invoice saved but return warning
+      console.error('PDF Generation Error:', pdfErr);
       return res.status(201).json({ ...invoice.toObject(), pdfError: pdfErr.message || 'Failed to generate PDF' });
     }
 
@@ -261,24 +236,24 @@ router.delete('/:id', async (req, res) => {
     if (!invoice) {
       return res.status(404).json({ error: 'Invoice not found' });
     }
-    // Delete PDF from disk if exists
     if (invoice.pdfPath) {
       try {
-        if (fs.existsSync(invoice.pdfPath)) {
-          fs.unlinkSync(invoice.pdfPath);
+        const fullPath = path.join(__dirname, '..', 'uploads', 'invoices', invoice.pdfPath);
+        if (fs.existsSync(fullPath)) {
+          fs.unlinkSync(fullPath);
         }
       } catch (e) {
-        // ignore file delete errors
+        console.error('Error deleting PDF file:', e);
       }
     }
     await Invoice.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Invoice and PDF deleted successfully', deletedInvoice: invoice });
+    res.json({ message: 'Invoice and PDF deleted successfully' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// Search invoices by customer name or order number
+// Search invoices by customer name, order number, or mobile
 router.get('/search/:query', async (req, res) => {
   try {
     const query = req.params.query;

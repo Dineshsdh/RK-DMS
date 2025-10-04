@@ -25,11 +25,15 @@ const InvoiceSchema = new mongoose.Schema({
   roundedGrandTotal: Number,
   deliveryDate: String,
   deliveryDay: String,
+  
+  // --- ADDED FIELDS ---
+  deliveryTime: { type: String, default: '' },
+  packageHandlingAmount: { type: Number, default: 0 },
+  // --- END ADDED FIELDS ---
 
   pdfPath: String,
 
   // Invoice status lifecycle
-  // Allowed values: pending, delivered, cancelled
   status: { type: String, enum: ['pending', 'delivered', 'cancelled'], default: 'pending' },
 
 }, { timestamps: true });

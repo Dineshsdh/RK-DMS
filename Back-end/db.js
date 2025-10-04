@@ -2,7 +2,7 @@
 const mongoose = require('mongoose');
 
 // Default to local MongoDB for development; override with MONGODB_URL in production
-const DB_URL = process.env.MONGODB_URL || 'mongodb://127.0.0.1:27017/rk-dms';
+const DB_URL = process.env.MONGODB_URL || 'mongodb+srv://dineshsdh05:admin123@rk-dms.vcmnhif.mongodb.net/';
 
 const connectDB = async () => {
   try {
