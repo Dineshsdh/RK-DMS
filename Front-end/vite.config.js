@@ -1,11 +1,13 @@
-// vite.config.js
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { Buffer } from 'buffer';
 
+// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  // --- ADD THIS SECTION ---
   define: {
-    'global.Buffer': Buffer,
+    global: 'globalThis',
+    'process.env': {}
   },
+  // --- END SECTION ---
 });
